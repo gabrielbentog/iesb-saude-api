@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://postgres:password@db:5432/iesb_saude_api_production
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SECRET_KEY_BASE: 2c971a3ca6a910932703ff28b8e8006313d641e00c8cd0199b68f5fd5d846ee21fc7943f98fddf3ea4b5c4b55d6f1fba629950cbe74f8c4d0d71e19710e7385d
+    volumes:
+      - .:/rails
+    depends_on:
+      - db
+    command: ["bin/rails", "server", "-b", "0.0.0.0"]
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: iesb_saude_api_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
