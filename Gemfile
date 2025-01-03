@@ -47,7 +47,7 @@ group :development, :test do
 end
 
 # Serializers
-gem "active_model_serializers"
+gem 'active_model_serializers'
 
 # Auth
 gem "devise_token_auth", ">= 1.2.0", git: "https://github.com/lynndylanhurley/devise_token_auth"

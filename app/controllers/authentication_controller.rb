@@ -7,7 +7,7 @@ class AuthenticationController < ApplicationController
       token = AuthenticationService.encode(user)
       render json: { token: token, user: user }, status: :ok
     else
-      render json: { errors: ['Invalid email or password'] }, status: :unauthorized
+      render json: { errors: { id: 'unauthorized', title: 'Email ou senha inválidos' } }, status: :unauthorized
     end
   end
 

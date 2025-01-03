@@ -1,16 +1,16 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
-  before_action :authenticate_request!, only: [:index, :show, :update, :destroy]
+  # before_action :authenticate_request!, only: [:index, :show, :update, :destroy]
 
   # GET /users
   def index
     @users = User.all
-    render json: @users
+    render json: @users, each_serializer: UserSerializer
   end
 
   # GET /users/:id
   def show
-    render json: @user
+    render json: @user, serializer: UserSerializer
   end
 
   # POST /users/:id
@@ -20,7 +20,7 @@ class UsersController < ApplicationController
       token = AuthenticationService.encode(@user)
       render json: {token: token, user: @user}, status: :created
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: ErrorSerializer.serialize(@user.errors), status: :unprocessable_entity
     end
   end
 
@@ -29,7 +29,7 @@ class UsersController < ApplicationController
     if @user.update(user_params)
       render json: @user
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: ErrorSerializer.serialize(@user.errors), status: :unprocessable_entity
     end
   end
 
