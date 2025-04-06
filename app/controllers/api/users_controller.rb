@@ -21,8 +21,12 @@ class Api::UsersController < ApplicationController
 
     @user = User.new(user_params.merge(profile: profile))
     if @user.save
-      token = AuthenticationService.encode(@user)
-      render json: {token: token, user: @user}, status: :created
+      if current_user.nil?
+        token = AuthenticationService.encode(@user)
+        render json: {token: token, user: UserSerializer.new(@user)}, status: :created
+      else
+        render json: @user, serializer: UserSerializer, status: :created
+      end
     else
       render json: ErrorSerializer.serialize(@user.errors), status: :unprocessable_entity
     end
