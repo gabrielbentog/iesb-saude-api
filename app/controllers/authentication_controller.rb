@@ -5,7 +5,7 @@ class AuthenticationController < ApplicationController
 
     if user&.valid_password?(params[:password])
       token = AuthenticationService.encode(user)
-      render json: { token: token, user: user }, status: :ok
+      render json: { token: token, user: UserSerializer.new(user) }, status: :ok
     else
       render json: { errors: { id: 'unauthorized', title: 'Email ou senha inválidos' } }, status: :unauthorized
     end
@@ -14,6 +14,6 @@ class AuthenticationController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:email, :password)
+    params.permit(:email, :password)
   end
 end

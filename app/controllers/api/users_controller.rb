@@ -1,10 +1,10 @@
-class UsersController < ApplicationController
+class Api::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
   # before_action :authenticate_request!, only: [:index, :show, :update, :destroy]
 
   # GET /users
   def index
-    @users = User.all
+    @users = User.all.includes(:profiles)
     render json: @users, each_serializer: UserSerializer
   end
 
@@ -15,7 +15,11 @@ class UsersController < ApplicationController
 
   # POST /users/:id
   def create
-    @user = User.new(user_params)
+    profile = if current_user.nil?
+      Profile.find_by(name: 'Paciente')
+    end
+
+    @user = User.new(user_params.merge(profile: profile))
     if @user.save
       token = AuthenticationService.encode(@user)
       render json: {token: token, user: @user}, status: :created
