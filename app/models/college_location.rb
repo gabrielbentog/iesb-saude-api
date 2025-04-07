@@ -1,6 +1,7 @@
 class CollegeLocation < ApplicationRecord
   has_many :location_specialties, dependent: :destroy
   has_many :specialties, through: :location_specialties
+  has_many :consultation_rooms, dependent: :restrict_with_error
 
   validates :name, presence: true
 end
