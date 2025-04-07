@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_065618) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_07_070209) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -26,6 +26,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_065618) do
     t.string "location"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "location_specialties", force: :cascade do |t|
+    t.bigint "college_location_id", null: false
+    t.bigint "specialty_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["college_location_id", "specialty_id"], name: "index_location_specialties_on_location_and_specialty", unique: true
+    t.index ["college_location_id"], name: "index_location_specialties_on_college_location_id"
+    t.index ["specialty_id"], name: "index_location_specialties_on_specialty_id"
   end
 
   create_table "profiles", force: :cascade do |t|
@@ -70,5 +80,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_065618) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "location_specialties", "college_locations"
+  add_foreign_key "location_specialties", "specialties"
   add_foreign_key "users", "profiles"
 end
