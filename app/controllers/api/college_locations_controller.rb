@@ -1,19 +1,19 @@
 class Api:: CollegeLocationsController < ApplicationController
   before_action :set_college_location, only: %i[ show update destroy ]
 
-  # GET /college_locations
+  # GET /api/college_locations
   def index
     @college_locations = CollegeLocation.all
 
     render json: @college_locations, each_serializer: CollegeLocationSerializer, status: :ok
   end
 
-  # GET /college_locations/1
+  # GET /api/college_locations/1
   def show
     render json: @college_location, serializer: CollegeLocationSerializer
   end
 
-  # POST /college_locations
+  # POST /api/college_locations
   def create
     @college_location = CollegeLocation.new(college_location_params)
 
@@ -24,7 +24,7 @@ class Api:: CollegeLocationsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /college_locations/1
+  # PATCH/PUT /api/college_locations/1
   def update
     if @college_location.update(college_location_params)
       render json: @college_location, serializer: CollegeLocationSerializer
@@ -33,7 +33,7 @@ class Api:: CollegeLocationsController < ApplicationController
     end
   end
 
-  # DELETE /college_locations/1
+  # DELETE /api/college_locations/1
   def destroy
     @college_location.destroy!
   end

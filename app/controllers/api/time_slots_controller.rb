@@ -1,19 +1,19 @@
 class Api::TimeSlotsController < ApplicationController
   before_action :set_time_slot, only: %i[ show update destroy ]
 
-  # GET /time_slots
+  # GET /api/time_slots
   def index
     @time_slots = TimeSlot.all
 
     render json: @time_slots, each_serializer: TimeSlotSerializer, status: :ok
   end
 
-  # GET /time_slots/1
+  # GET /api/time_slots/1
   def show
     render json: @time_slot, serializer: TimeSlotSerializer
   end
 
-  # POST /time_slots
+  # POST /api/time_slots
   def create
     @time_slot = TimeSlot.new(time_slot_params)
 
@@ -24,7 +24,7 @@ class Api::TimeSlotsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /time_slots/1
+  # PATCH/PUT /api/time_slots/1
   def update
     if @time_slot.update(time_slot_params)
       render json: @time_slot, serializer: TimeSlotSerializer
@@ -33,7 +33,7 @@ class Api::TimeSlotsController < ApplicationController
     end
   end
 
-  # DELETE /time_slots/1
+  # DELETE /api/time_slots/1
   def destroy
     @time_slot.destroy!
   end

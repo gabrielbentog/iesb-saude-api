@@ -2,18 +2,18 @@ class Api::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
   # before_action :authenticate_request!, only: [:index, :show, :update, :destroy]
 
-  # GET /users
+  # GET /api/users
   def index
     @users = User.all.includes(:profiles)
     render json: @users, each_serializer: UserSerializer
   end
 
-  # GET /users/:id
+  # GET /api/users/:id
   def show
     render json: @user, serializer: UserSerializer
   end
 
-  # POST /users/:id
+  # POST /api/users/:id
   def create
     profile = if current_user.nil?
       Profile.find_by(name: 'Paciente')
@@ -32,7 +32,7 @@ class Api::UsersController < ApplicationController
     end
   end
 
-  # PUT/PATCH /users/:id
+  # PUT/PATCH /api/users/:id
   def update
     if @user.update(user_params)
       render json: @user
@@ -41,7 +41,7 @@ class Api::UsersController < ApplicationController
     end
   end
 
-  # DELETE /users/:id
+  # DELETE /api/users/:id
   def destroy
     @user.destroy
     head :no_content

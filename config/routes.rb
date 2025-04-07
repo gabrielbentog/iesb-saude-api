@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :appointments
   mount_devise_token_auth_for 'User', at: 'auth'
   post "login" => "authentication#login"
 
@@ -7,8 +6,11 @@ Rails.application.routes.draw do
   
   namespace :api do
     resources :users
-    resources :college_locations
+    resources :college_locations do
+      resources :consultation_rooms
+    end
     resources :time_slots
     resources :specialties
+    resources :appointments
   end
 end

@@ -1,19 +1,19 @@
 class Api::SpecialtiesController < ApplicationController
   before_action :set_specialty, only: %i[ show update destroy ]
 
-  # GET /specialties
+  # GET /api/specialties
   def index
     @specialties = Specialty.all
 
     render json: @specialties, each_serializer: SpecialtySerializer, status: :ok
   end
 
-  # GET /specialties/1
+  # GET /api/specialties/1
   def show
     render json: @specialty, serializer: SpecialtySerializer
   end
 
-  # POST /specialties
+  # POST /api/specialties
   def create
     @specialty = Specialty.new(specialty_params)
 
@@ -24,7 +24,7 @@ class Api::SpecialtiesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /specialties/1
+  # PATCH/PUT /api/specialties/1
   def update
     if @specialty.update(specialty_params)
       render json: @specialty, serializer: SpecialtySerializer
@@ -33,7 +33,7 @@ class Api::SpecialtiesController < ApplicationController
     end
   end
 
-  # DELETE /specialties/1
+  # DELETE /api/specialties/1
   def destroy
     @specialty.destroy!
   end
