@@ -6,5 +6,6 @@ Rails.application.routes.draw do
   
   namespace :api do
     resources :users
+    resources :college_locations
   end
 end

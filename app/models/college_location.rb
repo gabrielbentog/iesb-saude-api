@@ -1,0 +1,2 @@
+class CollegeLocation < ApplicationRecord
+end
