@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  resources :specialties
   mount_devise_token_auth_for 'User', at: 'auth'
   post "login" => "authentication#login"
 
@@ -8,5 +7,7 @@ Rails.application.routes.draw do
   namespace :api do
     resources :users
     resources :college_locations
+    resources :time_slots
+    resources :specialties
   end
 end

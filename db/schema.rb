@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_070209) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_07_070210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -53,6 +53,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_070209) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "time_slots", force: :cascade do |t|
+    t.bigint "college_location_id", null: false
+    t.bigint "specialty_id", null: false
+    t.bigint "intern_id"
+    t.integer "turn"
+    t.time "start_time"
+    t.time "end_time"
+    t.integer "week_day"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["college_location_id"], name: "index_time_slots_on_college_location_id"
+    t.index ["intern_id"], name: "index_time_slots_on_intern_id"
+    t.index ["specialty_id"], name: "index_time_slots_on_specialty_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
@@ -82,5 +97,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_070209) do
 
   add_foreign_key "location_specialties", "college_locations"
   add_foreign_key "location_specialties", "specialties"
+  add_foreign_key "time_slots", "college_locations"
+  add_foreign_key "time_slots", "specialties"
+  add_foreign_key "time_slots", "users", column: "intern_id"
   add_foreign_key "users", "profiles"
 end
