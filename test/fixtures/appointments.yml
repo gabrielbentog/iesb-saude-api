@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  time_slot: one
+  user: one
+  date: 2025-04-07
+  start_time: 2025-04-07 01:19:11
+  end_time: 2025-04-07 01:19:11
+  status: 1
+  notes: MyText
+
+two:
+  time_slot: two
+  user: two
+  date: 2025-04-07
+  start_time: 2025-04-07 01:19:11
+  end_time: 2025-04-07 01:19:11
+  status: 1
+  notes: MyText

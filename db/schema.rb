@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_070210) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_07_070212) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "appointments", force: :cascade do |t|
+    t.bigint "time_slot_id", null: false
+    t.bigint "user_id", null: false
+    t.date "date"
+    t.time "start_time"
+    t.time "end_time"
+    t.integer "status"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["time_slot_id"], name: "index_appointments_on_time_slot_id"
+    t.index ["user_id"], name: "index_appointments_on_user_id"
+  end
 
   create_table "campuses", force: :cascade do |t|
     t.string "name"
@@ -43,6 +57,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_070210) do
     t.integer "users_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "recurrence_rules", force: :cascade do |t|
+    t.bigint "time_slot_id", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.integer "frequency_type", null: false
+    t.integer "frequency_interval", null: false
+    t.integer "max_occurrences"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["time_slot_id"], name: "index_recurrence_rules_on_time_slot_id"
   end
 
   create_table "specialties", force: :cascade do |t|
@@ -95,8 +121,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_070210) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "appointments", "time_slots"
+  add_foreign_key "appointments", "users"
   add_foreign_key "location_specialties", "college_locations"
   add_foreign_key "location_specialties", "specialties"
+  add_foreign_key "recurrence_rules", "time_slots"
   add_foreign_key "time_slots", "college_locations"
   add_foreign_key "time_slots", "specialties"
   add_foreign_key "time_slots", "users", column: "intern_id"
