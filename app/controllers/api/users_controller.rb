@@ -16,7 +16,7 @@ class Api::UsersController < ApplicationController
   # POST /api/users/:id
   def create
     profile = if current_user.nil?
-      Profile.find_by(name: 'Paciente')
+      Profile.find_or_create_by(name: 'Paciente')
     end
 
     @user = User.new(user_params.merge(profile: profile))

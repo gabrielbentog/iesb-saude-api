@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_07_070212) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_07_070214) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,15 +24,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_070212) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "consultation_room_id"
+    t.index ["consultation_room_id"], name: "index_appointments_on_consultation_room_id"
     t.index ["time_slot_id"], name: "index_appointments_on_time_slot_id"
     t.index ["user_id"], name: "index_appointments_on_user_id"
-  end
-
-  create_table "campuses", force: :cascade do |t|
-    t.string "name"
-    t.string "location"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "college_locations", force: :cascade do |t|
@@ -40,6 +35,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_070212) do
     t.string "location"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "consultation_rooms", force: :cascade do |t|
+    t.bigint "college_location_id", null: false
+    t.bigint "specialty_id", null: false
+    t.string "name"
+    t.boolean "active"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["college_location_id"], name: "index_consultation_rooms_on_college_location_id"
+    t.index ["specialty_id"], name: "index_consultation_rooms_on_specialty_id"
   end
 
   create_table "location_specialties", force: :cascade do |t|
@@ -121,8 +127,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_07_070212) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "appointments", "consultation_rooms"
   add_foreign_key "appointments", "time_slots"
   add_foreign_key "appointments", "users"
+  add_foreign_key "consultation_rooms", "college_locations"
+  add_foreign_key "consultation_rooms", "specialties"
   add_foreign_key "location_specialties", "college_locations"
   add_foreign_key "location_specialties", "specialties"
   add_foreign_key "recurrence_rules", "time_slots"
