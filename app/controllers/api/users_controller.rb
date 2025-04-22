@@ -17,6 +17,9 @@ class Api::UsersController < ApplicationController
   def create
     profile = if current_user.nil?
       Profile.find_or_create_by(name: 'Paciente')
+    elsif user_params[:profile_name].present? && current_user.profile.name == 'Gestor'
+      Profile.find_or_create_by(name: user_params[:profile_name])
+      user_params.merge!(password: user_params[:registration], password_confirmation: user_params[:registration])
     end
 
     @user = User.new(user_params.merge(profile: profile))
@@ -56,6 +59,6 @@ class Api::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :name)
+    params.require(:user).permit(:email, :password, :password_confirmation, :name, :registration)
   end
 end

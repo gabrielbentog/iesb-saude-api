@@ -1,9 +1,9 @@
 class Api::SpecialtiesController < ApplicationController
   before_action :set_specialty, only: %i[ show update destroy ]
 
-  # GET /api/specialties
+  # GET /api/college_locations/:college_location_id/specialties
   def index
-    @specialties = Specialty.all
+    @specialties = Specialty.all.joins(:college_locations).where(college_locations: { id: params[:college_location_id] })
 
     render json: @specialties, each_serializer: SpecialtySerializer, status: :ok
   end

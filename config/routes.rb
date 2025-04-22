@@ -7,10 +7,10 @@ Rails.application.routes.draw do
   namespace :api do
     resources :users
     resources :college_locations do
+      resources :specialties
       resources :consultation_rooms
     end
     resources :time_slots
-    resources :specialties
     resources :appointments
   end
 end
