@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   
   namespace :api do
+    get "calendar" => "calendar#calendar"
     resources :users
     resources :college_locations do
       resources :specialties

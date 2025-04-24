@@ -5,7 +5,7 @@ class CreateRecurrenceRules < ActiveRecord::Migration[8.0]
       t.date :start_date, null: false
       t.date :end_date, null: false
       t.integer :frequency_type, null: false
-      t.integer :frequency_interval, null: false
+      t.integer :frequency_interval
       t.integer :max_occurrences
 
       t.timestamps

@@ -52,3 +52,6 @@ gem 'active_model_serializers'
 # Auth
 gem "devise_token_auth", ">= 1.2.0", git: "https://github.com/lynndylanhurley/devise_token_auth"
 gem "jwt"
+
+# Calendar
+gem "ice_cube", "~> 0.17"

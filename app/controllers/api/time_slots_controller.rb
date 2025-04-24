@@ -15,13 +15,12 @@ class Api::TimeSlotsController < ApplicationController
 
   # POST /api/time_slots
   def create
-    @time_slot = TimeSlot.new(time_slot_params)
+    @time_slots = TimeSlot.create!(time_slots_params)
 
-    if @time_slot.save
-      render json: @time_slot, serializer: TimeSlotSerializer, status: :created
-    else
-      render json: ErrorSerializer.serialize(@time_slot.errors), status: :unprocessable_entity
-    end
+    render json: @time_slots, each_serializer: TimeSlotSerializer, status: :created
+
+    rescue ActiveRecord::RecordInvalid => e
+      render json: ErrorSerializer.serialize(e.record.errors), status: :unprocessable_entity
   end
 
   # PATCH/PUT /api/time_slots/1
@@ -42,11 +41,27 @@ class Api::TimeSlotsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_time_slot
-    @time_slot = TimeSlot.find(params.expect(:id))
+    @time_slot = TimeSlot.find(params[:id])  # corrigido
   end
 
   # Only allow a list of trusted parameters through.
-  def time_slot_params
-    params.expect(time_slot: [ :college_location_id, :turn, :start_time, :end_time, :week_day ])
+  def time_slots_params
+    params.require(:time_slots).map do |ts|
+      ts.permit(
+        :college_location_id,
+        :specialty_id,
+        :date,
+        :week_day,
+        :start_time,
+        :end_time,
+        recurrence_rule_attributes: %i[
+          id
+          repeat_type
+          start_date
+          end_date
+          frequency_type
+        ]
+      )
+    end
   end
 end
