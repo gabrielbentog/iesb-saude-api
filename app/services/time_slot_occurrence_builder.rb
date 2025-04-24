@@ -9,18 +9,16 @@ class TimeSlotOccurrenceBuilder
     @to   = to.to_date
   end
 
+  # ---------------------------------------------------------
   def call
-    schedule = IceCube::Schedule.new(dummy_start_date)
-    schedule.add_recurrence_rule(build_rule)
-  
-    # ------ exceções completas ------
-    @slot.exceptions.where(start_time: nil).find_each do |ex|
-      schedule.add_exception_time(Time.zone.local(ex.date.year, ex.date.month, ex.date.day))
-    end
-  
-    occurrences = schedule.occurrences_between(@from, @to).map { |occ| build_hash_for(occ.to_date) }
-  
-    # ------ exceções parciais (hora a hora) ------
+    occurrences =
+      if @slot.recurrence_rule.present?
+        build_from_recurrence
+      else
+        build_single_day
+      end
+
+    # ======= exceções parciais (por horário) =======
     partials = @slot.exceptions.where.not(start_time: nil)
     occurrences.reject! do |occ|
       partials.any? do |ex|
@@ -28,17 +26,47 @@ class TimeSlotOccurrenceBuilder
           occ[:start_at].between?(ex_start(ex), ex_end(ex) - 1.second)
       end
     end
-  
+
     occurrences
   end
 
-  def ex_start(ex) = Time.zone.local(ex.date.year, ex.date.month, ex.date.day,
-    ex.start_time.hour, ex.start_time.min, ex.start_time.sec)
-  def ex_end(ex)   = Time.zone.local(ex.date.year, ex.date.month, ex.date.day,
-    ex.end_time.hour,   ex.end_time.min,   ex.end_time.sec)
-
+  # ---------------------------------------------------------
   private
 
+  # ---------- caso tenha recurrence_rule ----------
+  def build_from_recurrence
+    sched = IceCube::Schedule.new(dummy_start_date)
+    sched.add_recurrence_rule(build_rule)
+
+    # exceções inteiras (cancelar o dia todo)
+    @slot.exceptions.where(start_time: nil).find_each do |ex|
+      sched.add_exception_time(Time.zone.local(ex.date.year, ex.date.month, ex.date.day))
+    end
+
+    sched
+      .occurrences_between(@from, @to)
+      .map { |occ| build_hash_for(occ.to_date) }
+  end
+
+  # ---------- caso NÃO tenha recurrence_rule ----------
+  def build_single_day
+    return [] unless @slot.date && (@from..@to).cover?(@slot.date)
+
+    # ignora se houver exceção completa para esse dia
+    return [] if @slot.exceptions.exists?(date: @slot.date, start_time: nil)
+
+    [build_hash_for(@slot.date)]
+  end
+
+  # ---------------------------------------------------------
+  # helpers de exceção parcial
+  def ex_start(ex) = Time.zone.local(ex.date.year, ex.date.month, ex.date.day,
+                                     ex.start_time.hour, ex.start_time.min, ex.start_time.sec)
+  def ex_end(ex)   = Time.zone.local(ex.date.year, ex.date.month, ex.date.day,
+                                     ex.end_time.hour, ex.end_time.min, ex.end_time.sec)
+
+  # ---------------------------------------------------------
+  # dados para IceCube
   def dummy_start_date
     Time.zone.local(@slot.recurrence_rule.start_date.year,
                     @slot.recurrence_rule.start_date.month,
@@ -51,25 +79,24 @@ class TimeSlotOccurrenceBuilder
                  .until(@slot.recurrence_rule.end_date)
   end
 
-  # -----  Aqui juntamos dados de negócio e metadados -----
+  # ---------------------------------------------------------
+  # hash final entregue à API
   def build_hash_for(day)
-    start_at = Time.zone.local(
-      day.year, day.month, day.day,
-      @slot.start_time.hour, @slot.start_time.min, @slot.start_time.sec
-    )
+    start_at = Time.zone.local(day.year, day.month, day.day,
+                               @slot.start_time.hour, @slot.start_time.min, @slot.start_time.sec)
 
-    end_at   = Time.zone.local(
-      day.year, day.month, day.day,
-      @slot.end_time.hour, @slot.end_time.min, @slot.end_time.sec
-    )
+    end_at   = Time.zone.local(day.year, day.month, day.day,
+                               @slot.end_time.hour,   @slot.end_time.min,   @slot.end_time.sec)
 
     {
-      start_at:, end_at:,
-      time_slot_id:          @slot.id,
-      campus_id:             @slot.college_location_id,
-      campus_name:           @slot.college_location&.name,
-      specialty_id:          @slot.specialty_id,
-      specialty_name:        @slot.specialty&.name
+      start_at:        start_at,
+      end_at:          end_at,
+      time_slot_id:    @slot.id,
+      is_recurring:    @slot.recurrence_rule.present?,   # ← NOVO
+      campus_id:       @slot.college_location_id,
+      campus_name:     @slot.college_location&.name,
+      specialty_id:    @slot.specialty_id,
+      specialty_name:  @slot.specialty&.name
     }
   end
 end

@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       resources :consultation_rooms
     end
     resources :time_slots
+    resources :time_slot_exceptions
     resources :appointments
   end
 end
