@@ -38,6 +38,12 @@ class Api::SpecialtiesController < ApplicationController
     @specialty.destroy!
   end
 
+  # GET /api/specialties/simple
+  def simple
+    @specialties = Specialty.all
+    render json: @specialties, each_serializer: SpecialtySimpleSerializer, status: :ok
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.

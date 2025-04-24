@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_10_215215) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_24_140303) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -85,6 +85,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_10_215215) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "time_slot_exceptions", force: :cascade do |t|
+    t.bigint "time_slot_id", null: false
+    t.date "date"
+    t.time "start_time"
+    t.time "end_time"
+    t.string "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["time_slot_id"], name: "index_time_slot_exceptions_on_time_slot_id"
+  end
+
   create_table "time_slots", force: :cascade do |t|
     t.bigint "college_location_id", null: false
     t.bigint "specialty_id", null: false
@@ -136,6 +147,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_10_215215) do
   add_foreign_key "location_specialties", "college_locations"
   add_foreign_key "location_specialties", "specialties"
   add_foreign_key "recurrence_rules", "time_slots"
+  add_foreign_key "time_slot_exceptions", "time_slots"
   add_foreign_key "time_slots", "college_locations"
   add_foreign_key "time_slots", "specialties"
   add_foreign_key "time_slots", "users", column: "intern_id"

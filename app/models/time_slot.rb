@@ -5,6 +5,8 @@ class TimeSlot < ApplicationRecord
 
   has_one :recurrence_rule, dependent: :destroy
 
+  has_many :exceptions, class_name: "TimeSlotException", dependent: :delete_all
+
   validates :week_day, :start_time, :end_time, presence: true
 
   accepts_nested_attributes_for :recurrence_rule, allow_destroy: true

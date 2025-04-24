@@ -12,11 +12,30 @@ class TimeSlotOccurrenceBuilder
   def call
     schedule = IceCube::Schedule.new(dummy_start_date)
     schedule.add_recurrence_rule(build_rule)
-
-    schedule.occurrences_between(@from, @to).map do |occ|
-      build_hash_for(occ.to_date)
+  
+    # ------ exceções completas ------
+    @slot.exceptions.where(start_time: nil).find_each do |ex|
+      schedule.add_exception_time(Time.zone.local(ex.date.year, ex.date.month, ex.date.day))
     end
+  
+    occurrences = schedule.occurrences_between(@from, @to).map { |occ| build_hash_for(occ.to_date) }
+  
+    # ------ exceções parciais (hora a hora) ------
+    partials = @slot.exceptions.where.not(start_time: nil)
+    occurrences.reject! do |occ|
+      partials.any? do |ex|
+        ex.date == occ[:start_at].to_date &&
+          occ[:start_at].between?(ex_start(ex), ex_end(ex) - 1.second)
+      end
+    end
+  
+    occurrences
   end
+
+  def ex_start(ex) = Time.zone.local(ex.date.year, ex.date.month, ex.date.day,
+    ex.start_time.hour, ex.start_time.min, ex.start_time.sec)
+  def ex_end(ex)   = Time.zone.local(ex.date.year, ex.date.month, ex.date.day,
+    ex.end_time.hour,   ex.end_time.min,   ex.end_time.sec)
 
   private
 

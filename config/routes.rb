@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :time_slot_exceptions
   mount_devise_token_auth_for 'User', at: 'auth'
   post "login" => "authentication#login"
 
@@ -7,6 +8,12 @@ Rails.application.routes.draw do
   namespace :api do
     get "calendar" => "calendar#calendar"
     resources :users
+    resources :specialties, only: [] do
+      collection do
+        get "simple"
+      end
+    end
+
     resources :college_locations do
       resources :specialties
       resources :consultation_rooms
