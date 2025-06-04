@@ -19,18 +19,18 @@ class Api::CalendarController < ApplicationController
     busy = Appointment.where(date: from..to).map do |appt|
       time_slot = appt.time_slot
       {
-        start_at: appt.date.in_time_zone.change(hour: appt.start_time.hour,
+        startAt: appt.date.in_time_zone.change(hour: appt.start_time.hour,
                       min:  appt.start_time.min),
-        end_at:   appt.date.in_time_zone.change(hour: appt.end_time.hour,
+        endAt:   appt.date.in_time_zone.change(hour: appt.end_time.hour,
                       min:  appt.end_time.min),
         date:     appt.date,
         patient:  appt.user.name,
-        time_slot_id:    time_slot.id,
-        is_recurring:    time_slot.recurrence_rule.present?,   # ← NOVO
-        campus_id:       time_slot.college_location_id,
-        campus_name:     time_slot.college_location&.name,
-        specialty_id:    time_slot.specialty_id,
-        specialty_name:  time_slot.specialty&.name
+        timeSlotId:    time_slot.id,
+        isRecurring:    time_slot.recurrence_rule.present?,   # ← NOVO
+        campusId:       time_slot.college_location_id,
+        campusName:     time_slot.college_location&.name,
+        specialtyId:    time_slot.specialty_id,
+        specialtyName:  time_slot.specialty&.name
       }
     end
 

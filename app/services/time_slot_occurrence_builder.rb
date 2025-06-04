@@ -22,9 +22,9 @@ class TimeSlotOccurrenceBuilder
     partials = @slot.exceptions.where.not(start_time: nil)
     occurrences.reject! do |occ|
       Appointment.exists?(
-        time_slot_id: occ[:time_slot_id],
-        date: occ[:start_at].to_date,
-        start_time: occ[:start_at]..(occ[:end_at] - 1.second)
+        time_slot_id: occ[:timeSlotId],
+        date: occ[:startAt].to_date,
+        start_time: occ[:startAt]..(occ[:endAt] - 1.second)
       )
     end
 
@@ -83,22 +83,22 @@ class TimeSlotOccurrenceBuilder
   # ---------------------------------------------------------
   # hash final entregue à API
   def build_hash_for(day)
-    start_at = Time.zone.local(day.year, day.month, day.day,
+    startAt = Time.zone.local(day.year, day.month, day.day,
                                @slot.start_time.hour, @slot.start_time.min, @slot.start_time.sec)
 
-    end_at   = Time.zone.local(day.year, day.month, day.day,
+    endAt   = Time.zone.local(day.year, day.month, day.day,
                                @slot.end_time.hour,   @slot.end_time.min,   @slot.end_time.sec)
 
     {
-      id:              @slot.id,
-      start_at:        start_at,
-      end_at:          end_at,
-      time_slot_id:    @slot.id,
-      is_recurring:    @slot.recurrence_rule.present?,   # ← NOVO
-      campus_id:       @slot.college_location_id,
-      campus_name:     @slot.college_location&.name,
-      specialty_id:    @slot.specialty_id,
-      specialty_name:  @slot.specialty&.name
+      id:             @slot.id,
+      startAt:        startAt,
+      endAt:          endAt,
+      timeSlotId:     @slot.id,
+      isRecurring:    @slot.recurrence_rule.present?,   # ← NOVO
+      campusId:       @slot.college_location_id,
+      campusName:     @slot.college_location&.name,
+      specialtyId:    @slot.specialty_id,
+      specialtyName:  @slot.specialty&.name
     }
   end
 end

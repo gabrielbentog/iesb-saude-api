@@ -7,7 +7,10 @@ Rails.application.routes.draw do
   
   namespace :api do
     get "calendar" => "calendar#calendar"
-    resources :users
+    resources :users do
+      get :interns, on: :member   # → /api/users/:id/interns
+    end
+
     resources :specialties, only: [] do
       collection do
         get "simple"

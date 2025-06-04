@@ -1,6 +1,6 @@
 class Api::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
-  # before_action :authenticate_request!, only: [:index, :show, :update, :destroy]
+  before_action :authenticate_request!
 
   # GET /api/users
   def index
@@ -15,14 +15,20 @@ class Api::UsersController < ApplicationController
 
   # POST /api/users/:id
   def create
-    profile = if current_user.nil?
-      Profile.find_or_create_by(name: 'Paciente')
+    if current_user.nil?
+      profile = Profile.find_or_create_by(name: 'Paciente')
     elsif user_params[:profile_name].present? && current_user.profile.name == 'Gestor'
-      Profile.find_or_create_by(name: user_params[:profile_name])
-      user_params.merge!(password: user_params[:registration], password_confirmation: user_params[:registration])
+      profile = Profile.find_or_create_by(name: user_params[:profile_name])
+      password = "#{user_params[:name].split(' ').first.titlecase}#{Date.today.year}@"
+      params[:user][:password] = password
+      params[:user][:password_confirmation] = password
+    else
+      profile = nil
     end
 
-    @user = User.new(user_params.merge(profile: profile))
+    clean_params = user_params.except(:profile_name)
+
+    @user = User.new(clean_params.merge(profile: profile))
     if @user.save
       if current_user.nil?
         token = AuthenticationService.encode(@user)
@@ -50,6 +56,24 @@ class Api::UsersController < ApplicationController
     head :no_content
   end
 
+  # GET /api/users/:id/interns
+  def interns
+    @interns = User.where(profile: Profile.find_by(name: 'Estagiário')).includes(:profile)
+
+    @interns = @interns.apply_filters(params)
+    meta = {
+      pagination:
+      {
+        total_count: @interns.total_count,
+        total_pages: @interns.total_pages,
+        current_page: @interns.current_page,
+        per_page: @interns.limit_value  
+      }
+    }
+
+    render json: @interns, each_serializer: InternSerializer, meta: meta
+  end
+
   private
 
   def set_user
@@ -59,6 +83,6 @@ class Api::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :name, :registration)
+    params.require(:user).permit(:email, :password, :password_confirmation, :name, :registration, :specialty_id, :profile_name)
   end
 end

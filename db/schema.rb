@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_24_155011) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,6 +83,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_24_155011) do
     t.boolean "active"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "users_count"
   end
 
   create_table "time_slot_exceptions", force: :cascade do |t|
@@ -133,10 +134,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_24_155011) do
     t.datetime "updated_at", null: false
     t.bigint "profile_id", null: false
     t.integer "registration"
+    t.bigint "specialty_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["profile_id"], name: "index_users_on_profile_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["specialty_id"], name: "index_users_on_specialty_id"
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
@@ -153,4 +156,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_24_155011) do
   add_foreign_key "time_slots", "specialties"
   add_foreign_key "time_slots", "users", column: "intern_id"
   add_foreign_key "users", "profiles"
+  add_foreign_key "users", "specialties"
 end
