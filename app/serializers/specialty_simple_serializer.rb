@@ -1,3 +1,3 @@
-class SpecialtySimpleSerializer < ActiveModel::Serializer
+class SpecialtySimpleSerializer < BaseSerializer
   attributes :id, :name, :description
 end

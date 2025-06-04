@@ -3,9 +3,15 @@ class Api::AppointmentsController < ApplicationController
 
   # GET /api/appointments
   def index
-    @appointments = Appointment.all
+    @appointments = Appointment.all.apply_filters(params)
+    meta = {
+      total_count: @appointments.total_count,
+      total_pages: @appointments.total_pages,
+      current_page: @appointments.current_page,
+      per_page: @appointments.limit_value
+    }
 
-    render json: @appointments, each_serializer: AppointmentSerializer, status: :ok
+    render json: @appointments, each_serializer: AppointmentSerializer, meta: meta
   end
 
   # GET /appointments/1

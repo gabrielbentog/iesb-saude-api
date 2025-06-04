@@ -6,6 +6,7 @@ class TimeSlot < ApplicationRecord
   has_one :recurrence_rule, dependent: :destroy
 
   has_many :exceptions, class_name: "TimeSlotException", dependent: :delete_all
+  has_one :appointment, dependent: :nullify
 
   validates :start_time, :end_time, presence: true
 

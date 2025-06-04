@@ -55,3 +55,6 @@ gem "jwt"
 
 # Calendar
 gem "ice_cube", "~> 0.17"
+
+# Kaminari for pagination
+gem "kaminari"

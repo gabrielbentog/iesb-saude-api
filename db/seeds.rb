@@ -1,6 +1,9 @@
 Profile.find_or_create_by(name: 'Paciente')
 Profile.find_or_create_by(name: 'Gestor')
 Profile.find_or_create_by(name: 'Estagiário')
+User.create(name: 'Gestor', email: 'gestor@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Gestor'))
+User.create(name: 'Estagiário', email: 'intern@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Estagiário'))
+User.create(name: 'Paciente', email: 'patient@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Paciente'))
 
 ConsultationRoom.delete_all
 LocationSpecialty.delete_all
