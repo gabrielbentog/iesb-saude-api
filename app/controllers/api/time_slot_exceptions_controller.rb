@@ -1,4 +1,4 @@
-class Api::TimeSlotExceptionsController < ApplicationController
+class Api::TimeSlotExceptionsController < Api::ApiController
   before_action :set_time_slot_exception, only: %i[ show update destroy ]
 
   # GET /time_slot_exceptions

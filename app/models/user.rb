@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   belongs_to :profile, counter_cache: true
-  belongs_to :specialty, counter_cache: true
+  belongs_to :specialty, optional: true, counter_cache: true
 
   has_many :appointments, dependent: :nullify
 

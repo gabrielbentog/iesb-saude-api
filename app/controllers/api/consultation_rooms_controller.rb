@@ -1,4 +1,4 @@
-class Api::ConsultationRoomsController < ApplicationController
+class Api::ConsultationRoomsController < Api::ApiController
   before_action :set_consultation_room, only: %i[ show update destroy ]
 
   # GET /api/college_locations/:college_location_id/consultation_rooms

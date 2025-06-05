@@ -1,4 +1,4 @@
-class Api::SpecialtiesController < ApplicationController
+class Api::SpecialtiesController < Api::ApiController
   before_action :set_specialty, only: %i[ show update destroy ]
 
   # GET /api/college_locations/:college_location_id/specialties

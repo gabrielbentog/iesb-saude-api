@@ -1,4 +1,4 @@
-class Api::CalendarController < ApplicationController
+class Api::CalendarController < Api::ApiController
   def calendar
     from = params[:start] || Date.today.beginning_of_month
     to   = params[:end]   || Date.today.end_of_month

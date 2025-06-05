@@ -1,4 +1,4 @@
-class Api:: CollegeLocationsController < ApplicationController
+class Api:: CollegeLocationsController < Api::ApiController
   before_action :set_college_location, only: %i[ show update destroy ]
 
   # GET /api/college_locations

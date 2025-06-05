@@ -1,6 +1,6 @@
-class Api::UsersController < ApplicationController
+class Api::UsersController < Api::ApiController
   before_action :set_user, only: [:show, :update, :destroy]
-  before_action :authenticate_request!
+  skip_before_action :authenticate_api_user!, only: [:create]
 
   # GET /api/users
   def index
@@ -15,9 +15,9 @@ class Api::UsersController < ApplicationController
 
   # POST /api/users/:id
   def create
-    if current_user.nil?
+    if current_api_user.nil?
       profile = Profile.find_or_create_by(name: 'Paciente')
-    elsif user_params[:profile_name].present? && current_user.profile.name == 'Gestor'
+    elsif user_params[:profile_name].present? && current_api_user.profile.name == 'Gestor'
       profile = Profile.find_or_create_by(name: user_params[:profile_name])
       password = "#{user_params[:name].split(' ').first.titlecase}#{Date.today.year}@"
       params[:user][:password] = password
@@ -30,7 +30,7 @@ class Api::UsersController < ApplicationController
 
     @user = User.new(clean_params.merge(profile: profile))
     if @user.save
-      if current_user.nil?
+      if current_api_user.nil?
         token = AuthenticationService.encode(@user)
         render json: {token: token, user: UserSerializer.new(@user)}, status: :created
       else
@@ -58,7 +58,8 @@ class Api::UsersController < ApplicationController
 
   # GET /api/users/:id/interns
   def interns
-    @interns = User.where(profile: Profile.find_by(name: 'Estagiário')).includes(:profile)
+    intern_profile = Profile.find_by(name: 'Estagiário')
+    @interns = User.where(profile: intern_profile).includes(:profile)
 
     @interns = @interns.apply_filters(params)
     meta = {
