@@ -11,6 +11,8 @@ Rails.application.routes.draw do
       get :interns, on: :member   # → /api/users/:id/interns
     end
 
+    get "dashboard/kpis" => "dashboard#kpis"
+
     resources :specialties, only: [] do
       collection do
         get "simple"

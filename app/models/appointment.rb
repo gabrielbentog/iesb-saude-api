@@ -3,14 +3,15 @@ class Appointment < ApplicationRecord
   belongs_to :time_slot
   belongs_to :user
 
-  enum :status, { pending: 0, confirmed: 1, cancelled: 2 }, prefix: true
+  enum :status, { pending: 0, confirmed: 1, cancelled: 2, scheduled: 3 }, prefix: true
 
   validates :date, :start_time, :end_time, presence: true
 
-  scope :scheduled, -> { where(status: :pending) }
+  scope :scheduled, -> { where(status: :scheduled) }
   scope :completed, -> { where(status: :confirmed) }
   scope :cancelled, -> { where(status: :cancelled) }
-
+  scope :pending, -> { where(status: :pending) }
+  
   # Custom validation to ensure end_time is after start_time
   validate :end_time_after_start_time
 

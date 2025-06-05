@@ -36,20 +36,20 @@ class Api::DashboardController < Api::ApiController
                         ((completed_count * 100.0) / total_appointments).round
                       end
     data = {
-      appointments_today: {
+      appointmentsToday: {
         total:          appointments_today,
-        percent_change: percent_change
+        percentChange: percent_change
       },
-      total_appointments: {
+      totalAppointments: {
         total:      total_appointments,
         completed:  completed_count,
         pending:    pending_count
       },
       interns: {
-        active_count:        active_interns_count,
-        specialties_count:   intern_specialties_count
+        activeCount:        active_interns_count,
+        specialtiesCount:   intern_specialties_count
       },
-      completion_rate: completion_rate   # e.g. 68 means 68 %
+      completionRate: completion_rate   # e.g. 68 means 68 %
     }
 
     render json: { data: data }, status: :ok

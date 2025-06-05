@@ -1,9 +1,6 @@
 Profile.find_or_create_by(name: 'Paciente')
 Profile.find_or_create_by(name: 'Gestor')
 Profile.find_or_create_by(name: 'Estagiário')
-User.create(name: 'Gestor', email: 'gestor@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Gestor'))
-User.create(name: 'Estagiário', email: 'intern@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Estagiário'))
-User.create(name: 'Paciente', email: 'patient@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Paciente'))
 
 ConsultationRoom.delete_all
 LocationSpecialty.delete_all
@@ -16,6 +13,10 @@ specialties = [
   { name: 'Odontologia',    description: 'Curso de Ciência da Computação na IESB', active: true },
   { name: 'Psicologia',                  description: 'Curso de Direito na IESB',               active: true },
 ].map { |attrs| Specialty.create!(attrs) }
+
+User.create(name: 'Gestor', email: 'gestor@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Gestor'))
+User.create(name: 'Estagiário', email: 'intern@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Estagiário'), specialty: specialties.first)
+User.create(name: 'Paciente', email: 'patient@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Paciente'))
 
 puts "🏫 Criando polos (college_locations)..."
 campuses = [
