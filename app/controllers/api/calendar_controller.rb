@@ -4,19 +4,25 @@ class Api::CalendarController < Api::ApiController
     to   = params[:end]   || Date.today.end_of_month
     specialty_id = params[:specialty_id]
     college_location_id = params[:campus_id]
+    user_specialty_id = current_api_user.specialty_id
 
     time_slots = TimeSlot
     .includes(:college_location, :specialty, :recurrence_rule)
-
+    
     time_slots = time_slots.where(specialty_id:) if specialty_id.present?
     time_slots = time_slots.where(college_location_id:) if college_location_id.present?
+
+    time_slots = time_slots.where(specialty_id: user_specialty_id) if user_specialty_id.present?
 
     free = time_slots.flat_map do |slot|
       TimeSlotOccurrenceBuilder.new(slot, from:, to:).call
     end
   
     # 2. Consultas já marcadas
-    busy = Appointment.where(date: from..to).map do |appt|
+    appointments = Appointment.joins(:time_slot).where(date: from..to)
+    appointments = appointments.where(time_slots: { specialty_id: user_specialty_id }) if user_specialty_id.present?
+
+    busy = appointments.map do |appt|
       time_slot = appt.time_slot
       {
         startAt: appt.date.in_time_zone.change(hour: appt.start_time.hour,

@@ -3,7 +3,9 @@ class Api::SpecialtiesController < Api::ApiController
 
   # GET /api/college_locations/:college_location_id/specialties
   def index
+    specialty_id = current_api_user.specialty_id
     @specialties = Specialty.all.joins(:college_locations).where(college_locations: { id: params[:college_location_id] })
+    @specialties = @specialties.where(id: specialty_id) if specialty_id.present?
 
     render json: @specialties, each_serializer: SpecialtySerializer, status: :ok
   end

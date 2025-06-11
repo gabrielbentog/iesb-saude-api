@@ -4,10 +4,11 @@ class Api::DashboardController < Api::ApiController
   def kpis
     today          = Date.current
     last_week_day  = today - 7.days
+    specialty_id = current_api_user.specialty_id
 
     # 1. Appointments today + variation vs. same weekday last week
-    appointments_today       = Appointment.where(date: today).count
-    appointments_last_week   = Appointment.where(date: last_week_day).count
+    appointments_today       = Appointment.joins(:time_slot).where(date: today, time_slots: { specialty_id: specialty_id }).count
+    appointments_last_week   = Appointment.joins(:time_slot).where(date: last_week_day, time_slots: { specialty_id: specialty_id }).count
     percent_change =
       if appointments_last_week.zero?
         0.0
@@ -16,13 +17,13 @@ class Api::DashboardController < Api::ApiController
       end
 
     # 2. Total appointments, split by status
-    total_appointments  = Appointment.count
-    completed_count     = Appointment.completed.count   # adjust enum if needed
-    pending_count       = Appointment.pending.count     # adjust enum if needed
+    total_appointments  = Appointment.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
+    completed_count     = Appointment.completed.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
+    pending_count       = Appointment.pending.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
 
     # 3. Active interns + number of specialties they cover
     intern_profile        = Profile.find_by(name: 'Estagiário')
-    interns_scope         = User.where(profile_id: intern_profile.id)
+    interns_scope         = User.where(profile_id: intern_profile.id, specialty_id: specialty_id)
     active_interns_count  = interns_scope.count
     intern_specialties_count = Specialty.joins(:users)
                                         .merge(interns_scope)

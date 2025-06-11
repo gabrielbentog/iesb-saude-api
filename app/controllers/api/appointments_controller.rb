@@ -3,12 +3,19 @@ class Api::AppointmentsController < Api::ApiController
 
   # GET /api/appointments
   def index
-    @appointments = Appointment.all.apply_filters(params)
+    specialty_id = current_api_user.specialty_id
+    @appointments = Appointment.all
+    @appointments = @appointments.where(user_id: current_api_user.id) if ['Paciente', 'Estagiário'].include?(current_api_user.profile.name)
+    @appointments = @appointments.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }) if specialty_id.present?
+    @appointments = @appointments.apply_filters(params)
+
     meta = {
-      total_count: @appointments.total_count,
-      total_pages: @appointments.total_pages,
-      current_page: @appointments.current_page,
-      per_page: @appointments.limit_value
+      pagination: {
+        total_count: @appointments.total_count,
+        total_pages: @appointments.total_pages,
+        current_page: @appointments.current_page,
+        per_page: @appointments.limit_value
+      }
     }
 
     render json: @appointments, each_serializer: AppointmentSerializer, meta: meta
@@ -42,6 +49,26 @@ class Api::AppointmentsController < Api::ApiController
   # DELETE /appointments/1
   def destroy
     @appointment.destroy!
+  end
+
+  # GET /api/appointments/next
+  def next
+    specialty_id = current_api_user.specialty_id
+    @appointments = Appointment.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }, status: [:pending, :scheduled, :confirmed])
+    @appointments = @appointments.where('appointments.date >= ?', Date.current)
+    @appointments = @appointments.where(user_id: current_api_user.id) if ['Paciente', 'Estagiário'].include?(current_api_user.profile.name)
+    @appointments = @appointments.apply_filters(params)
+
+    meta = {
+      pagination: {
+        total_count: @appointments.total_count,
+        total_pages: @appointments.total_pages,
+        current_page: @appointments.current_page,
+        per_page: @appointments.limit_value
+      }
+    }
+
+    render json: @appointments, each_serializer: AppointmentSerializer, meta: meta
   end
 
   private

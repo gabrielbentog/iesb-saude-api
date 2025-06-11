@@ -15,7 +15,10 @@ class Api::TimeSlotsController < Api::ApiController
 
   # POST /api/time_slots
   def create
-    @time_slots = TimeSlot.create!(time_slots_params)
+    specialty_id = current_api_user.specialty_id
+    return render json: { error: 'Specialty not found' }, status: :not_found if specialty_id.nil?
+
+    @time_slots = TimeSlot.create!(time_slots_params.map { |ts_params| ts_params.merge(specialty_id: specialty_id) })
 
     render json: @time_slots, each_serializer: TimeSlotSerializer, status: :created
 

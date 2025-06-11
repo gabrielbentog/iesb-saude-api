@@ -15,6 +15,8 @@ class Api::UsersController < Api::ApiController
 
   # POST /api/users/:id
   def create
+    @specialty_id = current_api_user.specialty_id if current_api_user
+
     if current_api_user.nil?
       profile = Profile.find_or_create_by(name: 'Paciente')
     elsif user_params[:profile_name].present? && current_api_user.profile.name == 'Gestor'
@@ -26,13 +28,13 @@ class Api::UsersController < Api::ApiController
       profile = nil
     end
 
-    clean_params = user_params.except(:profile_name)
+    clean_params = user_params.except(:profile_name).merge(specialty_id: @specialty_id)
 
     @user = User.new(clean_params.merge(profile: profile))
     if @user.save
       if current_api_user.nil?
-        token = AuthenticationService.encode(@user)
-        render json: {token: token, user: UserSerializer.new(@user)}, status: :created
+        auth_token = @user.create_new_auth_token.try(:[], 'Authorization')
+        render json: {token: auth_token, user: UserSerializer.new(@user)}, status: :created
       else
         render json: @user, serializer: UserSerializer, status: :created
       end
@@ -56,10 +58,11 @@ class Api::UsersController < Api::ApiController
     head :no_content
   end
 
-  # GET /api/users/:id/interns
+  # GET /api/users/interns
   def interns
+    specialty_id = current_api_user.specialty_id
     intern_profile = Profile.find_by(name: 'Estagiário')
-    @interns = User.where(profile: intern_profile).includes(:profile)
+    @interns = User.where(profile: intern_profile, specialty_id: specialty_id).includes(:profile)
 
     @interns = @interns.apply_filters(params)
     meta = {

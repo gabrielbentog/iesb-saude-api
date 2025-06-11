@@ -7,9 +7,8 @@ Rails.application.routes.draw do
     post "login" => "authentication#login"
 
     get "calendar" => "calendar#calendar"
-    resources :users do
-      get :interns, on: :member   # → /api/users/:id/interns
-    end
+    get "interns" => "users#interns"
+    resources :users
 
     get "dashboard/kpis" => "dashboard#kpis"
 
@@ -25,6 +24,10 @@ Rails.application.routes.draw do
     end
     resources :time_slots
     resources :time_slot_exceptions
-    resources :appointments
+    resources :appointments do
+      collection do
+        get :next
+      end
+    end
   end
 end
