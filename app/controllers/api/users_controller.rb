@@ -65,15 +65,7 @@ class Api::UsersController < Api::ApiController
     @interns = User.where(profile: intern_profile, specialty_id: specialty_id).includes(:profile)
 
     @interns = @interns.apply_filters(params)
-    meta = {
-      pagination:
-      {
-        totalCount: @interns.total_count,
-        totalPages: @interns.total_pages,
-        currentPage: @interns.current_page,
-        perPage: @interns.limit_value  
-      }
-    }
+    meta = generate_meta(@interns)
 
     render json: @interns, each_serializer: InternSerializer, meta: meta
   end

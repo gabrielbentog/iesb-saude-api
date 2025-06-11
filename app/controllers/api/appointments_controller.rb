@@ -9,14 +9,7 @@ class Api::AppointmentsController < Api::ApiController
     @appointments = @appointments.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }) if specialty_id.present?
     @appointments = @appointments.apply_filters(params)
 
-    meta = {
-      pagination: {
-        totalCount: @appointments.total_count,
-        totalPages: @appointments.total_pages,
-        currentPage: @appointments.current_page,
-        perPage: @appointments.limit_value
-      }
-    }
+    meta = generate_meta(@appointments)
 
     render json: @appointments, each_serializer: AppointmentSerializer, meta: meta
   end
