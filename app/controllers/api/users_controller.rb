@@ -68,10 +68,10 @@ class Api::UsersController < Api::ApiController
     meta = {
       pagination:
       {
-        total_count: @interns.total_count,
-        total_pages: @interns.total_pages,
-        current_page: @interns.current_page,
-        per_page: @interns.limit_value  
+        totalCount: @interns.total_count,
+        totalPages: @interns.total_pages,
+        currentPage: @interns.current_page,
+        perPage: @interns.limit_value  
       }
     }
 

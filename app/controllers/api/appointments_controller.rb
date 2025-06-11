@@ -11,10 +11,10 @@ class Api::AppointmentsController < Api::ApiController
 
     meta = {
       pagination: {
-        total_count: @appointments.total_count,
-        total_pages: @appointments.total_pages,
-        current_page: @appointments.current_page,
-        per_page: @appointments.limit_value
+        totalCount: @appointments.total_count,
+        totalPages: @appointments.total_pages,
+        currentPage: @appointments.current_page,
+        perPage: @appointments.limit_value
       }
     }
 
