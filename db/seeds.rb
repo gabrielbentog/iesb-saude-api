@@ -14,7 +14,7 @@ specialties = [
   { name: 'Psicologia',                  description: 'Curso de Direito na IESB',               active: true },
 ].map { |attrs| Specialty.create!(attrs) }
 
-User.create(name: 'Gestor', email: 'gestor@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Gestor'))
+User.create(name: 'Gestor', email: 'gestor@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Gestor'), specialty: specialties.first)
 User.create(name: 'Estagiário', email: 'intern@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Estagiário'), specialty: specialties.first)
 User.create(name: 'Paciente', email: 'patient@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Paciente'))
 

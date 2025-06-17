@@ -73,6 +73,6 @@ class Api::AppointmentsController < Api::ApiController
 
   # Only allow a list of trusted parameters through.
   def appointment_params
-    params.expect(appointment: [ :time_slot_id, :user_id, :date, :start_time, :end_time, :status, :notes ])
+    params.expect(appointment: [ :time_slot_id, :user_id, :date, :start_time, :end_time, :status, :notes, :intern_id ])
   end
 end

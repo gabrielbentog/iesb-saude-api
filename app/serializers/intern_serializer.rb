@@ -22,7 +22,7 @@ class InternSerializer < BaseSerializer
   end
 
   def appointments_scheduled
-    object.appointments.scheduled.count
+    object.intern_appointments.where(status: [:scheduled, :confirmed, :pending]).count
   end
 
   def status

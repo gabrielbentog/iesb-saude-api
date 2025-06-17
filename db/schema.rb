@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_17_163752) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pgcrypto"
+  enable_extension "uuid-ossp"
 
-  create_table "appointments", force: :cascade do |t|
-    t.bigint "time_slot_id", null: false
-    t.bigint "user_id", null: false
+  create_table "appointments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "time_slot_id", null: false
+    t.uuid "user_id", null: false
     t.date "date"
     t.time "start_time"
     t.time "end_time"
@@ -24,22 +26,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "consultation_room_id"
+    t.uuid "consultation_room_id"
+    t.uuid "intern_id"
     t.index ["consultation_room_id"], name: "index_appointments_on_consultation_room_id"
+    t.index ["intern_id"], name: "index_appointments_on_intern_id"
     t.index ["time_slot_id"], name: "index_appointments_on_time_slot_id"
     t.index ["user_id"], name: "index_appointments_on_user_id"
   end
 
-  create_table "college_locations", force: :cascade do |t|
+  create_table "college_locations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.string "location"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "consultation_rooms", force: :cascade do |t|
-    t.bigint "college_location_id", null: false
-    t.bigint "specialty_id", null: false
+  create_table "consultation_rooms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "college_location_id", null: false
+    t.uuid "specialty_id", null: false
     t.string "name"
     t.boolean "active"
     t.datetime "created_at", null: false
@@ -48,9 +52,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.index ["specialty_id"], name: "index_consultation_rooms_on_specialty_id"
   end
 
-  create_table "location_specialties", force: :cascade do |t|
-    t.bigint "college_location_id", null: false
-    t.bigint "specialty_id", null: false
+  create_table "location_specialties", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "college_location_id", null: false
+    t.uuid "specialty_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["college_location_id", "specialty_id"], name: "index_location_specialties_on_location_and_specialty", unique: true
@@ -58,15 +62,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.index ["specialty_id"], name: "index_location_specialties_on_specialty_id"
   end
 
-  create_table "profiles", force: :cascade do |t|
+  create_table "profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.integer "users_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "recurrence_rules", force: :cascade do |t|
-    t.bigint "time_slot_id", null: false
+  create_table "recurrence_rules", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "time_slot_id", null: false
     t.date "start_date", null: false
     t.date "end_date", null: false
     t.integer "frequency_type", null: false
@@ -77,7 +81,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.index ["time_slot_id"], name: "index_recurrence_rules_on_time_slot_id"
   end
 
-  create_table "specialties", force: :cascade do |t|
+  create_table "specialties", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.boolean "active"
@@ -86,8 +90,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.integer "users_count"
   end
 
-  create_table "time_slot_exceptions", force: :cascade do |t|
-    t.bigint "time_slot_id", null: false
+  create_table "time_slot_exceptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "time_slot_id", null: false
     t.date "date"
     t.time "start_time"
     t.time "end_time"
@@ -97,10 +101,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.index ["time_slot_id"], name: "index_time_slot_exceptions_on_time_slot_id"
   end
 
-  create_table "time_slots", force: :cascade do |t|
-    t.bigint "college_location_id", null: false
-    t.bigint "specialty_id", null: false
-    t.bigint "intern_id"
+  create_table "time_slots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "college_location_id", null: false
+    t.uuid "specialty_id", null: false
+    t.uuid "intern_id"
     t.integer "turn"
     t.time "start_time"
     t.time "end_time"
@@ -113,7 +117,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.index ["specialty_id"], name: "index_time_slots_on_specialty_id"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -132,9 +136,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
     t.json "tokens"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "profile_id", null: false
+    t.uuid "profile_id", null: false
     t.integer "registration"
-    t.bigint "specialty_id"
+    t.uuid "specialty_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["profile_id"], name: "index_users_on_profile_id"
@@ -146,6 +150,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_04_184250) do
   add_foreign_key "appointments", "consultation_rooms"
   add_foreign_key "appointments", "time_slots"
   add_foreign_key "appointments", "users"
+  add_foreign_key "appointments", "users", column: "intern_id"
   add_foreign_key "consultation_rooms", "college_locations"
   add_foreign_key "consultation_rooms", "specialties"
   add_foreign_key "location_specialties", "college_locations"

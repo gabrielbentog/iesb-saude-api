@@ -3,6 +3,7 @@ class Appointment < ApplicationRecord
   belongs_to :time_slot
   belongs_to :user
   belongs_to :consultation_room, optional: true
+  belongs_to :intern, class_name: 'User', optional: true
 
   enum :status, { pending: 0, confirmed: 1, cancelled: 2, scheduled: 3, completed: 4 }, prefix: true
 

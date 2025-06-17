@@ -6,8 +6,11 @@ class AppointmentSerializer < BaseSerializer
     if user
       {
         id: user.id,
-        name: user.name
-        # profilePicture: user.profile_picture,
+        name: user.name,
+        email: user.email,
+        cpf: "",
+        avatarUrl: "",
+        phone: "",
       }
     end
   end
@@ -33,6 +36,17 @@ class AppointmentSerializer < BaseSerializer
         name: consultation_room.name,
         college_location_name: consultation_room.college_location&.name,
         specialty_name: consultation_room.specialty&.name,
+      }
+    end
+  end
+
+  attribute :intern do |serializer|
+    intern = serializer.object.intern
+
+    if intern
+      {
+        id: intern.id,
+        name: intern.name,
       }
     end
   end
