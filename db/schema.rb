@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_17_163752) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_17_180417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -79,6 +79,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_17_163752) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["time_slot_id"], name: "index_recurrence_rules_on_time_slot_id"
+  end
+
+  create_table "request_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "method"
+    t.string "path"
+    t.string "controller"
+    t.string "action"
+    t.json "params"
+    t.string "ip"
+    t.uuid "user_id"
+    t.string "model_touchedt"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "specialties", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

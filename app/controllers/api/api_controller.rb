@@ -1,5 +1,7 @@
 class Api::ApiController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken
+  include LoggableRequest
+
   before_action :authenticate_api_user!
   before_action :transform_params
   after_action :camelize_response

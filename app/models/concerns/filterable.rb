@@ -1,11 +1,10 @@
-# app/models/concerns/filterable.rb
 module Filterable
   extend ActiveSupport::Concern
 
   class_methods do
     def apply_filters(params = {})
       results = all
-      filters = params[:filters] || {}
+      filters = params[:filter] || {}
       sort = params[:sort] || nil
       direction = params[:direction] || "asc"
       params_page = params[:page]
@@ -24,11 +23,9 @@ module Filterable
       end
 
       # Paginação (com kaminari ou pagy)
-      if params_page.present?
-        page = (params_page[:number] || 1).to_i
-        per_page = (params_page[:size] || 10).to_i
-        results = results.page(page).per(per_page)
-      end
+      page = (params_page&.dig(:number) || 1).to_i
+      per_page = (params_page&.dig(:size) || results.count).to_i
+      results = results.page(page).per(per_page)
 
       results
     end
