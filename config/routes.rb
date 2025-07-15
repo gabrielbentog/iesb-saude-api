@@ -3,12 +3,19 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   
   namespace :api do
-    mount_devise_token_auth_for 'User', at: 'auth'
+    mount_devise_token_auth_for 'User', at: 'auth', controllers: {
+      passwords: 'api/auth/passwords'
+    }
+    post "password/code_verify" => "users#code_verify" 
+
     post "login" => "authentication#login"
 
     get "calendar" => "calendar#calendar"
-    get "interns" => "users#interns"
-    resources :users
+    resources :users do
+      collection do
+        get "interns"
+      end
+    end
 
     get "dashboard/kpis" => "dashboard#kpis"
 

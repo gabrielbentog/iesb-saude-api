@@ -1,6 +1,6 @@
 class Api::UsersController < Api::ApiController
   before_action :set_user, only: [:show, :update, :destroy]
-  skip_before_action :authenticate_api_user!, only: [:create]
+  skip_before_action :authenticate_api_user!, only: [:create, :code_verify]
 
   # GET /api/users
   def index
@@ -68,6 +68,18 @@ class Api::UsersController < Api::ApiController
     meta = generate_meta(@interns)
 
     render json: @interns, each_serializer: InternSerializer, meta: meta
+  end
+
+  def code_verify
+    user = User.find_by(email: params.require(:email))
+    code = params.require(:code)
+
+    if user&.valid_reset_code?(code)
+      render json: { valid: true }, status: :ok
+    else
+      render json: { valid: false,
+                     errors: ["Código inválido ou expirado"] }, status: :unprocessable_entity
+    end
   end
 
   private

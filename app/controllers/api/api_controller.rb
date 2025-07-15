@@ -3,6 +3,7 @@ class Api::ApiController < ActionController::API
   include LoggableRequest
 
   before_action :authenticate_api_user!
+  skip_before_action :authenticate_api_user!, if: :devise_controller?
   before_action :transform_params
   after_action :camelize_response
 

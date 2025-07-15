@@ -42,6 +42,12 @@ group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
+  # Mailer
+  gem "mailcatcher", require: false
+
+  #ENVs
+  gem "dotenv-rails", require: "dotenv/rails-now"
+
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 end
