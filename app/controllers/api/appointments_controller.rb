@@ -48,7 +48,7 @@ class Api::AppointmentsController < Api::ApiController
   def next
     specialty_id = current_api_user.specialty_id
     @appointments = Appointment.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }, status: [:pending, :scheduled, :confirmed])
-    @appointments = @appointments.where('appointments.date >= ?', Date.current)
+    @appointments = @appointments.where('appointments.date >= ?', Date.current).where('appointments.start_time > ?', Time.current)
     @appointments = @appointments.where(user_id: current_api_user.id) if ['Paciente', 'Estagiário'].include?(current_api_user.profile.name)
     @appointments = @appointments.apply_filters(params)
 
