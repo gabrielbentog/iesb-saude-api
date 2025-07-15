@@ -35,6 +35,12 @@ Rails.application.routes.draw do
       collection do
         get :next
       end
+
+      member do
+        patch :confirm
+        patch :cancel
+        patch :reject
+      end
     end
   end
 end

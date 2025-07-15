@@ -1,5 +1,5 @@
 class Api::AppointmentsController < Api::ApiController
-  before_action :set_appointment, only: %i[ show update destroy ]
+  before_action :set_appointment, only: %i[ show update destroy confirm cancel reject]
 
   # GET /api/appointments
   def index
@@ -62,6 +62,33 @@ class Api::AppointmentsController < Api::ApiController
     }
 
     render json: @appointments, each_serializer: AppointmentSerializer, meta: meta
+  end
+
+  # PUT /api/appointments/:id/confirm
+  def confirm
+    if @appointment.update(status: :confirmed)
+      render json: @appointment, serializer: AppointmentSerializer, status: :ok
+    else
+      render json: ErrorSerializer.serialize(@appointment.errors), status: :unprocessable_entity
+    end
+  end
+
+  # PUT /api/appointments/:id/cancel
+  def cancel
+    if @appointment.update(status: :cancelled)
+      render json: @appointment, serializer: AppointmentSerializer, status: :ok
+    else
+      render json: ErrorSerializer.serialize(@appointment.errors), status: :unprocessable_entity
+    end
+  end
+
+  # PUT /api/appointments/:id/reject
+  def reject
+    if @appointment.update(status: :rejected)
+      render json: @appointment, serializer: AppointmentSerializer, status: :ok
+    else
+      render json: ErrorSerializer.serialize(@appointment.errors), status: :unprocessable_entity
+    end
   end
 
   private

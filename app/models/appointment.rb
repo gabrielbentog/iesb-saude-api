@@ -5,12 +5,13 @@ class Appointment < ApplicationRecord
   belongs_to :consultation_room, optional: true
   belongs_to :intern, class_name: 'User', optional: true
 
-  enum :status, { pending: 0, confirmed: 1, cancelled: 2, scheduled: 3, completed: 4 }, prefix: true
+  enum :status, { pending: 0, confirmed: 1, cancelled: 2, rejected: 3, completed: 4 }, prefix: true
 
   validates :date, :start_time, :end_time, presence: true
 
-  scope :scheduled, -> { where(status: :scheduled) }
-  scope :completed, -> { where(status: :confirmed) }
+  scope :rejected, -> { where(status: :rejected) }
+  scope :confirmed, -> { where(status: :confirmed) }
+  scope :completed, -> { where(status: :completed) }
   scope :cancelled, -> { where(status: :cancelled) }
   scope :pending, -> { where(status: :pending) }
 
