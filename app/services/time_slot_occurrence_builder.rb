@@ -11,6 +11,8 @@ class TimeSlotOccurrenceBuilder
 
   # ---------------------------------------------------------
   def call
+    now = Time.zone.now
+
     occurrences =
       if @slot.recurrence_rule.present?
         build_from_recurrence
@@ -25,7 +27,7 @@ class TimeSlotOccurrenceBuilder
         time_slot_id: occ[:timeSlotId],
         date: occ[:startAt].to_date,
         start_time: occ[:startAt]..(occ[:endAt] - 1.second)
-      )
+      ) || occ[:startAt] < now
     end
 
     occurrences
