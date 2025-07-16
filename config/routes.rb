@@ -13,7 +13,8 @@ Rails.application.routes.draw do
     get "calendar" => "calendar#calendar"
     resources :users do
       collection do
-        get "interns"
+        get :interns
+        get :me
       end
     end
 

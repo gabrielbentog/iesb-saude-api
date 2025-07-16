@@ -13,6 +13,15 @@ class Api::UsersController < Api::ApiController
     render json: @user, serializer: UserSerializer
   end
 
+  # GET /api/users/me
+  def me
+    if current_api_user
+      render json: current_api_user, serializer: UserSerializer
+    else
+      render json: { message: 'Usuário não autenticado' }, status: :unauthorized
+    end
+  end
+
   # POST /api/users/:id
   def create
     @specialty_id = current_api_user.specialty_id if current_api_user
