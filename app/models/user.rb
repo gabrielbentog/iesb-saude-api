@@ -42,6 +42,10 @@ class User < ActiveRecord::Base
     )
   end
 
+  def active?
+    last_activity_at.present? && last_activity_at > 1.month.ago
+  end
+
   private
 
   def intern_with_specialty

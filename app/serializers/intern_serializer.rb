@@ -18,7 +18,7 @@ class InternSerializer < BaseSerializer
   end
 
   def appointments_completed
-    object.appointments.completed.count
+    object.intern_appointments.completed.count
   end
 
   def appointments_scheduled
@@ -26,8 +26,7 @@ class InternSerializer < BaseSerializer
   end
 
   def status
-    # object.active? ? 'Ativo' : 'Inativo'
-    'Inativo'
+    object.active? ? 'Ativo' : 'Inativo'
   end
 
   def performance
