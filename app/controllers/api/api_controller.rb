@@ -4,13 +4,13 @@ class Api::ApiController < ActionController::API
 
   before_action :authenticate_api_user!
   skip_before_action :authenticate_api_user!, if: :devise_controller?
-  before_action :transform_params
+  before_action :underscore_params!
   before_action :touch_user_activity
 
   after_action :camelize_response
 
-  def transform_params
-    request.parameters.deep_transform_keys! { |key| key.to_s.underscore.to_sym }
+  def underscore_params!
+    params.deep_transform_keys!(&:underscore)
   end
 
   def generate_meta(collection, extra: {})

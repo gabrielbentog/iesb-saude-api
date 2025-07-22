@@ -5,17 +5,17 @@ class Appointment < ApplicationRecord
   belongs_to :consultation_room, optional: true
   belongs_to :intern, class_name: 'User', optional: true
 
-  enum :status, { pending: 0, confirmed: 1, cancelled: 2, rejected: 3, completed: 4 }, prefix: true
+  enum :status, {
+    pending: 0,               # Pendente
+    admin_confirmed: 1,       # Confirmado pelo administrador
+    cancelled_by_admin: 2,    # Cancelado pelo administrador
+    rejected: 3,              # Rejeitado
+    completed: 4,             # Concluído
+    patient_confirmed: 5,     # Confirmado pelo paciente
+    patient_cancelled: 6      # Cancelado pelo paciente
+  }
 
   validates :date, :start_time, :end_time, presence: true
-
-  scope :rejected, -> { where(status: :rejected) }
-  scope :confirmed, -> { where(status: :confirmed) }
-  scope :completed, -> { where(status: :completed) }
-  scope :cancelled, -> { where(status: :cancelled) }
-  scope :pending, -> { where(status: :pending) }
-
-  # Custom validation to ensure end_time is after start_time
   validate :end_time_after_start_time
 
   private
