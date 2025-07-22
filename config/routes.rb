@@ -18,7 +18,12 @@ Rails.application.routes.draw do
       end
     end
 
-    get "dashboard/kpis" => "dashboard#kpis"
+    resources :dashboard, only: [] do
+      collection do
+        get :kpis
+        get :patient_kpis
+      end
+    end
 
     resources :specialties, only: [] do
       collection do

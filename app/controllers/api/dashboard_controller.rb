@@ -55,4 +55,29 @@ class Api::DashboardController < Api::ApiController
 
     render json: { data: data }, status: :ok
   end
+
+  # GET /api/dashboard/patient_kpis
+def patient_kpis
+    today = Date.current
+
+    # ------------------ consultas do usuário ------------------
+    scope            = current_api_user.appointments.includes(:time_slot)
+    total_count      = scope.count
+    completed_count  = scope.completed.count
+
+    # próxima consulta (a mais próxima ainda não iniciada)
+    next_appt = scope
+      .where('appointments.date > ? OR (appointments.date = ? AND time_slots.start_time >= ?)',
+              today, today, Time.zone.now)
+      .order(:date, 'time_slots.start_time')
+      .first
+
+    data = {
+      nextAppointment:  next_appt ? "#{next_appt.date.strftime('%d/%m/%Y')} #{next_appt.start_time.strftime('%H:%M')}" : nil,
+      completed:        completed_count,
+      pendingConfirm:   scope.where(status: [:pending, :admin_confirmed]).count
+    }
+
+    render json: { data: data }, status: :ok
+  end
 end
