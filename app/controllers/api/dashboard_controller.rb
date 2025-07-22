@@ -24,7 +24,7 @@ class Api::DashboardController < Api::ApiController
     # 3. Active interns + number of specialties they cover
     intern_profile        = Profile.find_by(name: 'Estagiário')
     interns_scope         = User.where(profile_id: intern_profile.id, specialty_id: specialty_id)
-    active_interns_count  = interns_scope.count
+    active_interns_count  = interns_scope.where('last_activity_at > ?', 1.month.ago).count
     intern_specialties_count = Specialty.joins(:users)
                                         .merge(interns_scope)
                                         .distinct
