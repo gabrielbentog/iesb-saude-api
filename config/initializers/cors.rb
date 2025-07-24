@@ -7,7 +7,8 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "*"
+    origins %r{\Ahttps:\/\/iesb-saude-client.*\.vercel\.app\z}i,
+      %r{\Ahttps?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\z}i
     resource "*",
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head]

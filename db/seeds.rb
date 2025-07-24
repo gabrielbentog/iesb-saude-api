@@ -29,7 +29,7 @@ campuses = [
 
 puts "🔗 Associando especialidades a cada campus e criando salas de consulta..."
 campus_specialties_map = {
-  'Campus Brasília Sul'  => ['Psicologia'],
+  'Campus Brasília Sul'  => ['Nutrição', 'Odontologia', 'Psicologia'],
   'Campus Taguatinga'    => ['Psicologia', 'Odontologia'],
   'Campus Ceilândia'     => ['Nutrição', 'Odontologia', 'Psicologia'],
   'Campus Gama'          => ['Odontologia'],
@@ -47,12 +47,12 @@ campus_specialties_map.each do |campus_name, spec_names|
       specialty:        spec
     )
 
-    # Criar duas salas de consulta para cada especialidade
-    ['Sala 1', 'Sala 2'].each do |room_label|
+    # Criar oito salas de consulta para cada especialidade
+    8.times.each do |room_label|
       ConsultationRoom.create!(
         college_location: campus,
         specialty:        spec,
-        name:             "#{spec.name} – #{room_label}",
+        name:             "#{spec.name} – #{room_label + 1}",
         active:           true
       )
     end
