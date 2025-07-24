@@ -9,12 +9,11 @@ class Api::DashboardController < Api::ApiController
     # 1. Appointments today + variation vs. same weekday last week
     appointments_today       = Appointment.joins(:time_slot).where(date: today, time_slots: { specialty_id: specialty_id }).count
     appointments_last_week   = Appointment.joins(:time_slot).where(date: last_week_day, time_slots: { specialty_id: specialty_id }).count
-    percent_change =
-      if appointments_last_week.zero?
-        0.0
-      else
-        ((appointments_today - appointments_last_week) * 100.0 / appointments_last_week).round(1)
-      end
+    percent_change = if appointments_last_week.zero?
+      0.0
+    else
+      ((appointments_today - appointments_last_week) * 100.0 / appointments_last_week).round(1)
+    end
 
     # 2. Total appointments, split by status
     total_appointments  = Appointment.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).where.not(status: [:rejected, :patient_cancelled, :cancelled_by_admin]).count
@@ -30,12 +29,8 @@ class Api::DashboardController < Api::ApiController
                                         .distinct
                                         .count('specialties.id')
 
-    # 4. Completion rate (completed / total)
-    completion_rate = if total_appointments.zero?
-                        0.0
-                      else
-                        ((completed_count * 100.0) / total_appointments).round
-                      end
+    # 4. Attendance rate (completed / appointments)
+    attendance_rate = total_appointments.zero? ? 0.0 : ((completed_count * 100.0) / total_appointments).round
     data = {
       appointmentsToday: {
         total:          appointments_today,
@@ -50,7 +45,7 @@ class Api::DashboardController < Api::ApiController
         activeCount:        active_interns_count,
         specialtiesCount:   intern_specialties_count
       },
-      completionRate: completion_rate   # e.g. 68 means 68 %
+      completionRate: attendance_rate   # e.g. 68 means 68 %
     }
 
     render json: { data: data }, status: :ok
