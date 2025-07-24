@@ -16,6 +16,17 @@ class User < ActiveRecord::Base
   validates :password, :password_confirmation, presence: true, on: :create
   validates :email, presence: true, uniqueness: true
   validate :intern_with_specialty
+  validates :cpf,
+            format: { with: /\A\d{11}\z/, message: "deve ter 11 dígitos" },
+            uniqueness: true,
+            allow_blank: true
+  validates :phone,
+            format: { with: /\A\+?\d{10,14}\z/, message: "número inválido" },
+            uniqueness: true,
+            allow_blank: true
+  validate :cpf_cannot_be_changed, on: :update
+
+  before_validation :normalize_phone, :normalize_cpf
 
   def generate_reset_code!
     raw = rand(0..99_999).to_s.rjust(5, "0")          # "04271"
@@ -56,5 +67,23 @@ class User < ActiveRecord::Base
 
   def intern?
     profile&.name == "Estagiário"
+  end
+
+
+  def normalize_phone
+    self.phone = phone.gsub(/\D/, '') if phone.present?
+  end
+
+  def normalize_cpf
+    if cpf.present?
+      self.cpf = cpf.gsub(/\D/, '') # Remove tudo que não é dígito
+      self.cpf = cpf.rjust(11, '0') if cpf.length < 11 # Completa com zeros à esquerda
+    end
+  end
+
+  def cpf_cannot_be_changed
+    if cpf_changed? && cpf_was.present?
+      errors.add(:cpf, "Não pode ser alterado depois de cadastrado.")
+    end
   end
 end

@@ -8,7 +8,7 @@ class Api::AppointmentsController < Api::ApiController
     @appointments = @appointments.where(user_id: current_api_user.id) if ['Paciente', 'Estagiário'].include?(current_api_user.profile.name)
     @appointments = @appointments.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }) if specialty_id.present?
     @appointments = @appointments.apply_filters(params)
-
+    @appointments = @appointments.order(created_at: :desc, start_time: :asc)
     meta = generate_meta(@appointments)
 
     render json: @appointments, each_serializer: AppointmentSerializer, meta: meta
