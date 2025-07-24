@@ -4,7 +4,7 @@ class Api::UsersController < Api::ApiController
 
   # GET /api/users
   def index
-    @users = User.all.includes(:profiles)
+    @users = User.all.includes(:profile)
     render json: @users, each_serializer: UserSerializer
   end
 

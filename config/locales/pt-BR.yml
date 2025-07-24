@@ -6,6 +6,29 @@ pt-BR:
         restrict_dependent_destroy:
           has_one: Não é possível excluir o registro pois existe um %{record} dependente
           has_many: Não é possível excluir o registro pois existem %{record} dependentes
+    attributes:
+      appointment:
+        date: Data
+        end_time: Hora de término
+        start_time: Hora de início
+        status:
+          pending: Pendente
+          admin_confirmed: Aguardando confirmação do Paciente
+          cancelled_by_admin: Cancelada pelo gestor
+          rejected: Rejeitado
+          completed: Concluído
+          patient_confirmed: Confirmada
+          patient_cancelled: Cancelada pelo paciente
+      user:
+        email: Email
+        cpf: CPF
+        phone: Telefone
+        password: Senha
+        password_confirmation: Confirmação da senha
+        name: Nome
+        registration: Matrícula
+        specialty_id: Especialidade
+        profile_name: Perfil
   date:
     abbr_day_names:
       - dom

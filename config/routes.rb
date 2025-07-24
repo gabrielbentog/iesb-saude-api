@@ -38,6 +38,8 @@ Rails.application.routes.draw do
     resources :time_slots
     resources :time_slot_exceptions
     resources :appointments do
+      resources :appointment_status_histories, only: [:index]
+
       collection do
         get :next
       end

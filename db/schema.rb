@@ -10,11 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_24_140852) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_24_155107) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
   enable_extension "uuid-ossp"
+
+  create_table "appointment_status_histories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "appointment_id", null: false
+    t.integer "from_status"
+    t.integer "to_status"
+    t.string "changed_by_type", null: false
+    t.uuid "changed_by_id", null: false
+    t.datetime "changed_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appointment_id"], name: "index_appointment_status_histories_on_appointment_id"
+    t.index ["changed_by_type", "changed_by_id"], name: "index_appointment_status_histories_on_changed_by"
+  end
 
   create_table "appointments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "time_slot_id", null: false
@@ -166,6 +179,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_140852) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "appointment_status_histories", "appointments"
   add_foreign_key "appointments", "consultation_rooms"
   add_foreign_key "appointments", "time_slots"
   add_foreign_key "appointments", "users"

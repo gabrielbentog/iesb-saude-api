@@ -6,7 +6,7 @@ class Api::ApiController < ActionController::API
   skip_before_action :authenticate_api_user!, if: :devise_controller?
   before_action :underscore_params!
   before_action :touch_user_activity
-
+  before_action :set_current_context
   after_action :camelize_response
 
   def underscore_params!
@@ -40,5 +40,12 @@ class Api::ApiController < ActionController::API
     if current_api_user.last_activity_at.nil? || current_api_user.last_activity_at < 5.minutes.ago
       current_api_user.update_column(:last_activity_at, Time.current)
     end
+  end
+
+  private
+
+  def set_current_context
+    Current.user       = current_api_user
+    Current.request_id = request.uuid
   end
 end
