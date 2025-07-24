@@ -18,7 +18,7 @@ class Api::CalendarController < Api::ApiController
     end
   
     # 2. Consultas já marcadas
-    appointments = Appointment.joins(:time_slot).where(date: from..to)
+    appointments = Appointment.active.joins(:time_slot).where(date: from..to)
     appointments = appointments.where(time_slots: { specialty_id: user_specialty_id }) if user_specialty_id.present?
     appointments = appointments.where(user_id: current_api_user.id) if ['Paciente', 'Estagiário'].include?(current_api_user.profile.name)
 

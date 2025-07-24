@@ -23,7 +23,7 @@ class TimeSlotOccurrenceBuilder
     # ======= exceções parciais (por horário) =======
     partials = @slot.exceptions.where.not(start_time: nil)
     occurrences.reject! do |occ|
-      Appointment.exists?(
+      Appointment.active.exists?(
         time_slot_id: occ[:timeSlotId],
         date: occ[:startAt].to_date,
         start_time: occ[:startAt]..(occ[:endAt] - 1.second)
