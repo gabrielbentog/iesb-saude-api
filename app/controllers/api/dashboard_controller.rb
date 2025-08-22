@@ -18,7 +18,7 @@ class Api::DashboardController < Api::ApiController
     # 2. Total appointments, split by status
     total_appointments  = Appointment.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).where.not(status: [:rejected, :patient_cancelled, :cancelled_by_admin]).count
     completed_count     = Appointment.completed.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
-    pending_count       = Appointment.where.not(status: [:completed, :rejected, :patient_cancelled, :cancelled_by_admin]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
+    pending_count       = Appointment.where.not(status: [:completed, :rejected, :patient_cancelled, :cancelled_by_admin, :admin_confirmed]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
     to_approve_count    = Appointment.where(status: [:pending]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
 
     # 3. Active interns + number of specialties they cover
