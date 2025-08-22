@@ -16,6 +16,10 @@ Rails.application.routes.draw do
         get :interns
         get :me
       end
+
+      member do
+        put :change_password
+      end
     end
 
     resources :dashboard, only: [] do

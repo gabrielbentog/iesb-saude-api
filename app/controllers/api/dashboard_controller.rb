@@ -19,6 +19,7 @@ class Api::DashboardController < Api::ApiController
     total_appointments  = Appointment.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).where.not(status: [:rejected, :patient_cancelled, :cancelled_by_admin]).count
     completed_count     = Appointment.completed.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
     pending_count       = Appointment.where.not(status: [:completed, :rejected, :patient_cancelled, :cancelled_by_admin]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
+    to_approve_count    = Appointment.where(status: [:pending]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
 
     # 3. Active interns + number of specialties they cover
     intern_profile        = Profile.find_by(name: 'Estagiário')
@@ -41,6 +42,7 @@ class Api::DashboardController < Api::ApiController
         completed:  completed_count,
         pending:    pending_count
       },
+      appointmentsToApprove: to_approve_count,
       interns: {
         activeCount:        active_interns_count,
         specialtiesCount:   intern_specialties_count
@@ -61,7 +63,7 @@ def patient_kpis
     completed_count  = scope.completed.count
 
     # próxima consulta (a mais próxima ainda não iniciada)
-    next_appt = scope
+    next_appt = scope.where(status: :patient_confirmed)
       .where('appointments.date > ? OR (appointments.date = ? AND time_slots.start_time >= ?)',
               today, today, Time.zone.now)
       .order(:date, 'time_slots.start_time')
@@ -70,7 +72,7 @@ def patient_kpis
     data = {
       nextAppointment:  next_appt ? "#{next_appt.date.strftime('%d/%m/%Y')} #{next_appt.start_time.strftime('%H:%M')}" : nil,
       completed:        completed_count,
-      pendingConfirm:   scope.where(status: [:pending, :admin_confirmed]).count
+      pendingConfirm:   scope.where(status: [:admin_confirmed]).count
     }
 
     render json: { data: data }, status: :ok

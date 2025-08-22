@@ -79,6 +79,7 @@ class Api::UsersController < Api::ApiController
     render json: @interns, each_serializer: InternSerializer, meta: meta
   end
 
+  # GET /api/users/code_verify
   def code_verify
     user = User.find_by(email: params.require(:email))
     code = params.require(:code)
@@ -88,6 +89,19 @@ class Api::UsersController < Api::ApiController
     else
       render json: { valid: false,
                      errors: ["Código inválido ou expirado"] }, status: :unprocessable_entity
+    end
+  end
+
+  # PUT /api/users/:id/change-password
+  def change_password
+    if current_api_user&.valid_password?(params[:current_password])
+      if current_api_user.update(password: params[:new_password])
+        render json: { message: 'Senha alterada com sucesso' }, status: :ok
+      else
+        render json: ErrorSerializer.serialize(current_api_user.errors), status: :unprocessable_entity
+      end
+    else
+      render json: { message: 'Senha atual inválida' }, status: :unauthorized
     end
   end
 

@@ -1,5 +1,5 @@
 class AppointmentSerializer < BaseSerializer
-  attributes :id, :date, :start_time, :end_time, :status, :notes, :user
+  attributes :id, :date, :start_time, :end_time, :status, :notes, :user, :created_at
 
   attribute :user do |serializer|
     user = serializer.object.user
