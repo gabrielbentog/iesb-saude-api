@@ -40,10 +40,10 @@ class AppointmentSerializer < BaseSerializer
     end
   end
 
-  attribute :intern do |serializer|
-    intern = serializer.object.intern
+  attribute :interns do |serializer|
+    interns = serializer.object.interns
 
-    if intern
+    interns.map do |intern|
       {
         id: intern.id,
         name: intern.name,

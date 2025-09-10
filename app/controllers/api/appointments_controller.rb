@@ -99,11 +99,11 @@ class Api::AppointmentsController < Api::ApiController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_appointment
-    @appointment = Appointment.find(params.expect(:id))
+  @appointment = Appointment.find(params.require(:id))
   end
 
   # Only allow a list of trusted parameters through.
   def appointment_params
-    params.expect(appointment: [ :time_slot_id, :user_id, :date, :start_time, :end_time, :status, :notes, :intern_id ])
+  params.require(:appointment).permit(:time_slot_id, :user_id, :date, :start_time, :end_time, :status, :notes, intern_ids: [])
   end
 end

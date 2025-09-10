@@ -11,7 +11,8 @@ class User < ActiveRecord::Base
   belongs_to :specialty, optional: true, counter_cache: true
 
   has_many :appointments, dependent: :nullify
-  has_many :intern_appointments, class_name: 'Appointment', foreign_key: 'intern_id', dependent: :nullify
+  has_many :appointment_interns, foreign_key: 'intern_id', dependent: :destroy
+  has_many :appointments_as_intern, through: :appointment_interns, source: :appointment
 
   validates :password, :password_confirmation, presence: true, on: :create
   validates :email, presence: true, uniqueness: true

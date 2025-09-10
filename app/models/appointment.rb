@@ -3,7 +3,9 @@ class Appointment < ApplicationRecord
   belongs_to :time_slot
   belongs_to :user
   belongs_to :consultation_room, optional: true
-  belongs_to :intern, class_name: 'User', optional: true
+  has_many :appointment_interns, dependent: :destroy
+  has_many :interns, through: :appointment_interns, source: :intern
+
   has_many :status_histories,
            class_name:  "AppointmentStatusHistory",
            dependent:   :destroy,
@@ -26,6 +28,8 @@ class Appointment < ApplicationRecord
 
   before_update :log_status_change, if: :status_changed?
 
+  validate :interns_count_within_limits
+
   private
 
   def end_time_after_start_time
@@ -41,5 +45,13 @@ class Appointment < ApplicationRecord
       changed_by:  Current.user,      # use uma Current ou passe via service
       changed_at:  Time.current
     )
+  end
+
+  def interns_count_within_limits
+    return unless interns.loaded? || interns.any?
+
+    if interns.size < 1 || interns.size > 3
+      errors.add(:interns, "must have between 1 and 3 interns")
+    end
   end
 end

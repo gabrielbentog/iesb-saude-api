@@ -10,11 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_10_205749) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_10_230911) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
   enable_extension "uuid-ossp"
+
+  create_table "appointment_interns", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "appointment_id", null: false
+    t.uuid "intern_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appointment_id", "intern_id"], name: "index_appointment_interns_on_appointment_id_and_intern_id", unique: true
+    t.index ["intern_id"], name: "index_appointment_interns_on_intern_id"
+  end
 
   create_table "appointment_status_histories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "appointment_id", null: false
@@ -40,9 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_10_205749) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "consultation_room_id"
-    t.uuid "intern_id"
     t.index ["consultation_room_id"], name: "index_appointments_on_consultation_room_id"
-    t.index ["intern_id"], name: "index_appointments_on_intern_id"
     t.index ["time_slot_id"], name: "index_appointments_on_time_slot_id"
     t.index ["user_id"], name: "index_appointments_on_user_id"
   end
@@ -181,11 +188,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_10_205749) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "appointment_interns", "appointments"
+  add_foreign_key "appointment_interns", "users", column: "intern_id"
   add_foreign_key "appointment_status_histories", "appointments"
   add_foreign_key "appointments", "consultation_rooms"
   add_foreign_key "appointments", "time_slots"
   add_foreign_key "appointments", "users"
-  add_foreign_key "appointments", "users", column: "intern_id"
   add_foreign_key "consultation_rooms", "college_locations"
   add_foreign_key "consultation_rooms", "specialties"
   add_foreign_key "location_specialties", "college_locations"

@@ -18,11 +18,11 @@ class InternSerializer < BaseSerializer
   end
 
   def appointments_completed
-    object.intern_appointments.completed.count
+    object.appointments_as_intern.where(status: :completed).count
   end
 
   def appointments_scheduled
-    object.intern_appointments.where(status: [:admin_confirmed, :patient_confirmed]).count
+    object.appointments_as_intern.where(status: [:admin_confirmed, :patient_confirmed]).count
   end
 
   def status
