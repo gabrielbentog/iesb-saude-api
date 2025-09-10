@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_24_155107) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_10_205749) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -170,10 +170,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_155107) do
     t.datetime "last_activity_at"
     t.string "cpf"
     t.string "phone"
+    t.string "registration_code"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["last_activity_at"], name: "index_users_on_last_activity_at"
     t.index ["profile_id"], name: "index_users_on_profile_id"
+    t.index ["registration_code"], name: "index_users_on_registration_code"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["specialty_id"], name: "index_users_on_specialty_id"
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
