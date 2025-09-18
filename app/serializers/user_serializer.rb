@@ -1,5 +1,5 @@
 class UserSerializer < BaseSerializer
-  attributes :id, :name, :email, :cpf, :phone, :registration, :registration_code, :created_at, :updated_at, :profile
+  attributes :id, :name, :email, :cpf, :phone, :registration, :registration_code, :created_at, :updated_at, :profile, :theme_preference
 
   def profile
     profile = object.profile

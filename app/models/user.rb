@@ -29,6 +29,8 @@ class User < ActiveRecord::Base
 
   before_validation :normalize_phone, :normalize_cpf
 
+  enum :theme_preference, { system: 0, light: 1, dark: 2 }, default: :system
+
   def generate_reset_code!
     raw = rand(0..99_999).to_s.rjust(5, "0")          # "04271"
     update!(
