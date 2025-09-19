@@ -4,7 +4,7 @@ module Api
 
     # GET /api/notifications
     def index
-      notifications = current_user.notifications.order(created_at: :desc)
+      notifications = current_api_user.notifications.order(created_at: :desc)
       notifications = notifications.page(params[:page]).per(params[:per_page] || 20)
       render json: notifications, each_serializer: NotificationSerializer
     end
@@ -26,14 +26,14 @@ module Api
 
     # GET /api/notifications/unread_count
     def unread_count
-      count = current_user.notifications.unread.count
+      count = current_api_user.notifications.unread.count
       render json: { unread_count: count }
     end
 
     private
 
     def set_notification
-      @notification = current_user.notifications.find(params[:id])
+      @notification = current_api_user.notifications.find(params[:id])
     end
 
     def notification_params

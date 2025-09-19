@@ -65,7 +65,7 @@ class Appointment < ApplicationRecord
         title: 'Sua consulta foi agendada',
         body: "Sua solicitação de consulta para #{I18n.l(date)} às #{I18n.l(start_time, format: :hour_min)} foi registrada e aguarda confirmação do gestor.",
         appointment: self,
-        url: "/appointments/#{id}",
+        url: "consultas/#{id}",
         data: { event: 'appointment_created', status: status }
       )
     rescue => e
@@ -83,25 +83,31 @@ class Appointment < ApplicationRecord
         title: 'Consulta confirmada pelo administrador',
         body: "Sua consulta em #{I18n.l(date)} às #{I18n.l(start_time, format: :hour_min)} foi confirmada pelo administrador e está aguardando a sua confirmação final.",
         appointment: self,
-        url: "/appointments/#{id}",
+        url: "consultas/#{id}",
         data: { event: 'admin_confirmed', from: from, to: to }
       )
     when :patient_confirmed
-      # Notification.create!(
-      #   user: user,
-      #   title: 'Consulta confirmada',
-      #   body: "Você confirmou sua consulta em #{I18n.l(date)} às #{I18n.l(start_time, format: :hour_min)}.",
-      #   appointment: self,
-      #   url: "/appointments/#{id}",
-      #   data: { event: 'patient_confirmed', from: from, to: to }
-      # )
+      # Notifica os gestores da especialidade
+      specialty = time_slot.specialty
+      return unless specialty
+      specialty_managers = User.joins(:profile).where(profiles: { name: 'Gestor' }, specialty_id: specialty.id) 
+      specialty_managers.each do |manager|
+        Notification.create!(
+          user: manager,
+          title: 'Consulta confirmada pelo paciente',
+          body: "O paciente #{user.name} confirmou a consulta em #{I18n.l(date)} às #{I18n.l(start_time, format: :hour_min)}.",
+          appointment: self,
+          url: "consultas/#{id}",
+          data: { event: 'patient_confirmed', from: from, to: to }
+        )
+      end
     when :cancelled_by_admin
       Notification.create!(
         user: user,
         title: 'Consulta cancelada',
         body: "Sua consulta em #{I18n.l(date)} às #{I18n.l(start_time, format: :hour_min)} foi cancelada por um gestor.",
         appointment: self,
-        url: "/appointments/#{id}",
+        url: "consultas/#{id}",
         data: { event: 'cancelled', from: from, to: to }
       )
     when :patient_cancelled
@@ -111,7 +117,7 @@ class Appointment < ApplicationRecord
       #   body: "Você cancelou sua consulta em #{I18n.l(date)} às #{
       #     I18n.l(start_time, format: :hour_min)}.",
       #   appointment: self,
-      #   url: "/appointments/#{id}",
+      #   url: "consultas/#{id}",
       #   data: { event: 'patient_cancelled', from: from, to: to }
       # )
     when :rejected
@@ -120,7 +126,7 @@ class Appointment < ApplicationRecord
         title: 'Consulta rejeitada',
         body: "Sua solicitação de consulta para #{I18n.l(date)} às #{I18n.l(start_time, format: :hour_min)} foi rejeitada.",
         appointment: self,
-        url: "/appointments/#{id}",
+        url: "consultas/#{id}",
         data: { event: 'rejected', from: from, to: to }
       )
     end

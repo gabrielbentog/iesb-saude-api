@@ -54,7 +54,10 @@ Rails.application.routes.draw do
         patch :reject
       end
     end
-    resources :notifications, only: [:index, :show, :update, :create]
-    get 'notifications/unread_count', to: 'notifications#unread_count'
+    resources :notifications, only: [:index, :show, :update, :create] do
+      collection do
+        get :unread_count
+      end
+    end
   end
 end
