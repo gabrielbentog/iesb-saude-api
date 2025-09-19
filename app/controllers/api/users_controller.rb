@@ -63,6 +63,10 @@ class Api::UsersController < Api::ApiController
 
   # DELETE /api/users/:id
   def destroy
+    if current_api_user.profile.name != 'Gestor' && current_api_user != @user
+      render json: { message: 'Você não tem permissão para apagar este usuário' }, status: :forbidden and return
+    end
+
     @user.destroy
     head :no_content
   end

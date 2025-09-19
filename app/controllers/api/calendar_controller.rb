@@ -30,9 +30,11 @@ class Api::CalendarController < Api::ApiController
         endAt:   appt.date.in_time_zone.change(hour: appt.end_time.hour,
                       min:  appt.end_time.min),
         date:     appt.date,
-        patient:  appt.user.name,
+        patientName:  appt.user.name,
+        patientId:    appt.user.id,
         timeSlotId:    time_slot.id,
         isRecurring:    time_slot.recurrence_rule.present?,   # ← NOVO
+        appointmentId:  appt.id,
         campusId:       time_slot.college_location_id,
         campusName:     time_slot.college_location&.name,
         specialtyId:    time_slot.specialty_id,
