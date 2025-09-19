@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_18_223124) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_18_224123) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -80,6 +80,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_223124) do
     t.index ["college_location_id", "specialty_id"], name: "index_location_specialties_on_location_and_specialty", unique: true
     t.index ["college_location_id"], name: "index_location_specialties_on_college_location_id"
     t.index ["specialty_id"], name: "index_location_specialties_on_specialty_id"
+  end
+
+  create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "appointment_id"
+    t.string "title", null: false
+    t.text "body", null: false
+    t.boolean "read", default: false, null: false
+    t.jsonb "data", default: {}
+    t.string "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appointment_id"], name: "index_notifications_on_appointment_id"
+    t.index ["read"], name: "index_notifications_on_read"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "profiles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -199,6 +214,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_223124) do
   add_foreign_key "consultation_rooms", "specialties"
   add_foreign_key "location_specialties", "college_locations"
   add_foreign_key "location_specialties", "specialties"
+  add_foreign_key "notifications", "appointments"
+  add_foreign_key "notifications", "users"
   add_foreign_key "recurrence_rules", "time_slots"
   add_foreign_key "time_slot_exceptions", "time_slots"
   add_foreign_key "time_slots", "college_locations"

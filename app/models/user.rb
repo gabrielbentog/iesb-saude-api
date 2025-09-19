@@ -13,6 +13,7 @@ class User < ActiveRecord::Base
   has_many :appointments, dependent: :nullify
   has_many :appointment_interns, foreign_key: 'intern_id', dependent: :destroy
   has_many :appointments_as_intern, through: :appointment_interns, source: :appointment
+  has_many :notifications, dependent: :destroy
 
   validates :password, :password_confirmation, presence: true, on: :create
   validates :email, presence: true, uniqueness: true
