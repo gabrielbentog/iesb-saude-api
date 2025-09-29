@@ -7,14 +7,19 @@ class User < ActiveRecord::Base
 
   include DeviseTokenAuth::Concerns::User
 
+  # Associations
+  # has_one_attached :avatar
+
   belongs_to :profile, counter_cache: true
   belongs_to :specialty, optional: true, counter_cache: true
+  belongs_to :college_location, optional: true
 
   has_many :appointments, dependent: :nullify
   has_many :appointment_interns, foreign_key: 'intern_id', dependent: :destroy
   has_many :appointments_as_intern, through: :appointment_interns, source: :appointment
   has_many :notifications, dependent: :destroy
 
+  # Validations
   validates :password, :password_confirmation, presence: true, on: :create
   validates :email, presence: true, uniqueness: true
   validate :intern_with_specialty
@@ -89,5 +94,12 @@ class User < ActiveRecord::Base
     if cpf_changed? && cpf_was.present?
       errors.add(:cpf, "Não pode ser alterado depois de cadastrado.")
     end
+  end
+
+  def avatar_constraints
+    return unless avatar.attached?
+    errors.add(:avatar, "muito grande") if avatar.byte_size > 5.megabytes
+    acceptable = ["image/jpeg", "image/png", "image/webp"]
+    errors.add(:avatar, "tipo inválido") unless acceptable.include?(avatar.content_type)
   end
 end
