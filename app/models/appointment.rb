@@ -5,13 +5,14 @@ class Appointment < ApplicationRecord
   belongs_to :consultation_room, optional: true
   has_many :appointment_interns, dependent: :destroy
   has_many :interns, through: :appointment_interns, source: :intern
+  has_many :notifications, dependent: :destroy
 
   has_many :status_histories,
            class_name:  "AppointmentStatusHistory",
            dependent:   :destroy,
            inverse_of:  :appointment
 
-  scope :active, -> { where(status: [:pending, :admin_confirmed, :patient_confirmed]) }
+  scope :active, -> { where(status: [:pending, :admin_confirmed, :patient_confirmed, :completed]) }
 
   enum :status, {
     pending: 0,               # Pendente
@@ -52,8 +53,8 @@ class Appointment < ApplicationRecord
   def interns_count_within_limits
     return unless interns.loaded? || interns.any?
 
-    if interns.size < 1 || interns.size > 3
-      errors.add(:interns, "must have between 1 and 3 interns")
+    if interns.size > 3
+      errors.add(:interns, "must have at most 3 interns")
     end
   end
 

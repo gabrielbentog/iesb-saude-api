@@ -37,6 +37,11 @@ class User < ActiveRecord::Base
   # Callbacks
   before_validation :normalize_phone, :normalize_cpf
 
+  # Scopes
+  scope :active, -> { where("last_activity_at > ?", 1.month.ago) }
+  scope :interns, -> { joins(:profile).where(profiles: { name: "Estagiário" }) }
+  scope :patients, -> { joins(:profile).where(profiles: { name: "Paciente" }) }
+
   # Enums
   enum :theme_preference, { system: 0, light: 1, dark: 2 }, default: :system
 

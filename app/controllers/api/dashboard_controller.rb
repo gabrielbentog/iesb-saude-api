@@ -18,7 +18,7 @@ class Api::DashboardController < Api::ApiController
     # 2. Total appointments, split by status
     total_appointments  = Appointment.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).where.not(status: [:rejected, :patient_cancelled, :cancelled_by_admin]).count
     completed_count     = Appointment.completed.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
-    pending_count       = Appointment.where.not(status: [:completed, :rejected, :patient_cancelled, :cancelled_by_admin, :admin_confirmed]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
+    pending_count       = Appointment.where.not(status: [:completed, :rejected, :patient_cancelled, :cancelled_by_admin, :admin_confirmed, :patient_confirmed]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
     to_approve_count    = Appointment.where(status: [:pending]).joins(:time_slot).where(time_slots: { specialty_id: specialty_id }).count
 
     # 3. Active interns + number of specialties they cover
@@ -54,7 +54,7 @@ class Api::DashboardController < Api::ApiController
   end
 
   # GET /api/dashboard/patient_kpis
-def patient_kpis
+  def patient_kpis
     today = Date.current
 
     # ------------------ consultas do usuário ------------------
@@ -73,6 +73,35 @@ def patient_kpis
       nextAppointment:  next_appt ? "#{next_appt.date.strftime('%d/%m/%Y')} #{next_appt.start_time.strftime('%H:%M')}" : nil,
       completed:        completed_count,
       pendingConfirm:   scope.where(status: [:admin_confirmed]).count
+    }
+
+    render json: { data: data }, status: :ok
+  end
+
+  # GET /api/dashboard/intern_kpis
+  def intern_kpis
+    today = Date.current
+    week_start = today.beginning_of_week
+    week_end = today.end_of_week
+
+    scope = current_api_user.appointments.includes(:time_slot).joins(:interns).where(interns: { id: current_api_user.id })
+
+    # Próxima consulta (a mais próxima ainda não iniciada)
+    next_appt = scope.where(status: :patient_confirmed)
+      .where('appointments.date > ? OR (appointments.date = ? AND time_slots.start_time >= ?)',
+              today, today, Time.zone.now)
+      .order(:date, 'time_slots.start_time')
+      .first
+
+    completed_today = scope.completed.where(date: today).count
+    scheduled_this_week = scope.where(date: week_start..week_end).count
+    pending_approvals = scope.where(status: :pending).count
+
+    data = {
+      nextAppointment:  next_appt ? "#{next_appt.date.strftime('%d/%m/%Y')} #{next_appt.start_time.strftime('%H:%M')}" : nil,
+      completedToday:   completed_today,
+      scheduledThisWeek: scheduled_this_week,
+      pendingApprovals: pending_approvals
     }
 
     render json: { data: data }, status: :ok

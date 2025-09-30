@@ -47,6 +47,7 @@ class AppointmentSerializer < BaseSerializer
       {
         id: intern.id,
         name: intern.name,
+        avatar_url: intern.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_path(intern.avatar, only_path: true) : nil,
       }
     end
   end

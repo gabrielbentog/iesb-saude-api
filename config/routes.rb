@@ -26,6 +26,7 @@ Rails.application.routes.draw do
       collection do
         get :kpis
         get :patient_kpis
+        get :intern_kpis
       end
     end
 
