@@ -125,7 +125,7 @@ class Api::UsersController < Api::ApiController
     :password, 
     :password_confirmation,
     :college_location_id,
-    # :avatar,
+    :avatar,
     :semester,
     :name, :registration, 
     :registration_code, 

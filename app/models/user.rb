@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   # Associations
-  # has_one_attached :avatar
+  has_one_attached :avatar
 
   belongs_to :profile, counter_cache: true
   belongs_to :specialty, optional: true, counter_cache: true
@@ -22,7 +22,6 @@ class User < ActiveRecord::Base
   # Validations
   validates :password, :password_confirmation, presence: true, on: :create
   validates :email, presence: true, uniqueness: true
-  validate :intern_with_specialty
   validates :cpf,
             format: { with: /\A\d{11}\z/, message: "deve ter 11 dígitos" },
             uniqueness: true,
@@ -32,9 +31,13 @@ class User < ActiveRecord::Base
             uniqueness: true,
             allow_blank: true
   validate :cpf_cannot_be_changed, on: :update
+  validate :intern_with_specialty
+  validate :avatar_constraints
 
+  # Callbacks
   before_validation :normalize_phone, :normalize_cpf
 
+  # Enums
   enum :theme_preference, { system: 0, light: 1, dark: 2 }, default: :system
 
   def generate_reset_code!
