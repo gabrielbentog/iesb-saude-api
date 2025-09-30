@@ -9,7 +9,7 @@ class AppointmentSerializer < BaseSerializer
         name: user.name,
         email: user.email,
         cpf: "",
-        avatarUrl: "",
+        avatarUrl: user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_path(user.avatar, only_path: true) : nil,
         phone: "",
       }
     end

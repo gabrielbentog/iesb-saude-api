@@ -120,7 +120,7 @@ class Api::UsersController < Api::ApiController
   def user_params
   params.require(:user).permit(
     :email, 
-    :cpf, 
+    :cpf,
     :phone, 
     :password, 
     :password_confirmation,

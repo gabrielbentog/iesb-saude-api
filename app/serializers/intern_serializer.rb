@@ -15,9 +15,9 @@ class InternSerializer < BaseSerializer
     object&.specialty&.name
   end
 
-  # def avatar_url
-  #   object.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_path(object.avatar, only_path: true) : nil
-  # end
+  def avatar_url
+    object.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_path(object.avatar, only_path: true) : nil
+  end
 
   def appointments_completed
     object.appointments_as_intern.where(status: :completed).count

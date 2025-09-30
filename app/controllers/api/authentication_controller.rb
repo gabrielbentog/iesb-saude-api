@@ -12,6 +12,7 @@ class Api::AuthenticationController < Api::ApiController
 
     if user && user.valid_password?(password)
       auth_token = user.create_new_auth_token.try(:[], 'Authorization')
+      response.set_header('Authorization', auth_token)
       render json: { token: auth_token, user: UserSerializer.new(user) }, status: :ok
     else
       render json: { error: 'E-mail ou senha inválidos' }, status: :unauthorized
