@@ -1,4 +1,4 @@
-class Api::AppointmentStatusHistoriesController < ApplicationController
+class Api::AppointmentStatusHistoriesController < Api::ApiController
   # GET /api/appointment/:id/appointment_status_histories
   def index
     @appointment_status_histories = AppointmentStatusHistory
