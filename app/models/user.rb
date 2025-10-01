@@ -106,7 +106,7 @@ class User < ActiveRecord::Base
 
   def avatar_constraints
     return unless avatar.attached?
-    errors.add(:avatar, "muito grande") if avatar.byte_size > 5.megabytes
+    errors.add(:avatar, "Muito grande (máx. 2 MB)") if avatar.byte_size > 2.megabytes
     acceptable = ["image/jpeg", "image/png", "image/webp"]
     errors.add(:avatar, "tipo inválido") unless acceptable.include?(avatar.content_type)
   end
