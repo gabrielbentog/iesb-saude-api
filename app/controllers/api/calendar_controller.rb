@@ -6,24 +6,36 @@ class Api::CalendarController < Api::ApiController
     college_location_id = params[:campus_id]
     user_specialty_id = current_api_user.specialty_id
 
-    time_slots = TimeSlot
-    .includes(:college_location, :specialty, :recurrence_rule)
+    time_slots = TimeSlot.includes(:college_location, :specialty, :recurrence_rule)
     
-    time_slots = time_slots.where(specialty_id:) if specialty_id.present?
+    # Aplicar filtros por parâmetros ou por usuário
+    if specialty_id.present?
+      time_slots = time_slots.where(specialty_id:)
+    elsif user_specialty_id.present?
+      time_slots = time_slots.where(specialty_id: user_specialty_id)
+    end
+    
     time_slots = time_slots.where(college_location_id:) if college_location_id.present?
-    time_slots = time_slots.where(specialty_id: user_specialty_id) if user_specialty_id.present?
 
     free = time_slots.flat_map do |slot|
-      TimeSlotOccurrenceBuilder.new(slot, from:, to:).call
+      TimeSlotOccurrenceBuilder.new(slot, from:, to:, user: current_api_user).call
     end
   
     # 2. Consultas já marcadas
     appointments = Appointment.active.joins(:time_slot).where(date: from..to)
-    appointments = appointments.where(time_slots: { specialty_id: user_specialty_id }) if user_specialty_id.present?
+    
+    # Aplicar filtros consistentes com time_slots
+    if specialty_id.present?
+      appointments = appointments.where(time_slots: { specialty_id: })
+    elsif user_specialty_id.present?
+      appointments = appointments.where(time_slots: { specialty_id: user_specialty_id })
+    end
+    
+    appointments = appointments.where(time_slots: { college_location_id: }) if college_location_id.present?
     appointments = appointments.where(user_id: current_api_user.id) if current_api_user.profile.name == 'Paciente'
     appointments = appointments.joins(:interns).where(users: { id: current_api_user.id }) if current_api_user.profile.name == 'Estagiário'
 
-    busy = appointments.map do |appt|
+    busy = appointments.distinct.map do |appt|
       time_slot = appt.time_slot
       {
         startAt: appt.date.in_time_zone.change(hour: appt.start_time.hour,

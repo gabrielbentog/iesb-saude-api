@@ -3,10 +3,11 @@ require "ice_cube"
 require "ostruct"
 
 class TimeSlotOccurrenceBuilder
-  def initialize(time_slot, from:, to:)
+  def initialize(time_slot, from:, to:, user: nil)
     @slot = time_slot
     @from = from.to_date
     @to   = to.to_date
+    @user = user
   end
 
   # ---------------------------------------------------------
@@ -23,11 +24,19 @@ class TimeSlotOccurrenceBuilder
     # ======= filtrar apenas slots livres (sem agendamentos ativos) =======
     occurrences.select! do |occ|
       # Manter apenas se NÃO existe agendamento ativo E não é no passado
-      !Appointment.active.exists?(
+      appointment_query = Appointment.active.where(
         time_slot_id: occ[:timeSlotId],
-        date: occ[:startAt].to_date,
-        start_time: occ[:startAt]..(occ[:endAt] - 1.second)
-      ) && occ[:startAt] >= now
+        date: occ[:startAt].to_date
+      )
+      
+      # Aplicar os mesmos filtros que são usados no controller, se necessário
+      if @user&.profile&.name == 'Paciente'
+        appointment_query = appointment_query.where(user_id: @user.id)
+      elsif @user&.profile&.name == 'Estagiário'
+        appointment_query = appointment_query.joins(:interns).where(users: { id: @user.id })
+      end
+      
+      !appointment_query.exists? && occ[:startAt] >= Time.zone.now
     end
 
     occurrences
