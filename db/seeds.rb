@@ -2,12 +2,12 @@ Profile.find_or_create_by(name: 'Paciente')
 Profile.find_or_create_by(name: 'Gestor')
 Profile.find_or_create_by(name: 'Estagiário')
 
+Appointment.destroy_all
+TimeSlot.destroy_all
 ConsultationRoom.destroy_all
 LocationSpecialty.destroy_all
 CollegeLocation.destroy_all
 Specialty.destroy_all
-Appointment.destroy_all
-TimeSlot.destroy_all
 
 puts "🎓 Criando especialidades..."
 specialties = [
