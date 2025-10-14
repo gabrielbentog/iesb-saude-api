@@ -20,14 +20,14 @@ class TimeSlotOccurrenceBuilder
         build_single_day
       end
 
-    # ======= exceções parciais (por horário) =======
-    partials = @slot.exceptions.where.not(start_time: nil)
-    occurrences.reject! do |occ|
-      Appointment.active.exists?(
+    # ======= filtrar apenas slots livres (sem agendamentos ativos) =======
+    occurrences.select! do |occ|
+      # Manter apenas se NÃO existe agendamento ativo E não é no passado
+      !Appointment.active.exists?(
         time_slot_id: occ[:timeSlotId],
         date: occ[:startAt].to_date,
         start_time: occ[:startAt]..(occ[:endAt] - 1.second)
-      ) || occ[:startAt] < now
+      ) && occ[:startAt] >= now
     end
 
     occurrences
