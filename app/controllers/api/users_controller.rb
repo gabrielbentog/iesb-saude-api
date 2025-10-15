@@ -1,6 +1,7 @@
 class Api::UsersController < Api::ApiController
   before_action :set_user, only: [:show, :update, :destroy]
   skip_before_action :authenticate_api_user!, only: [:create, :code_verify]
+  skip_after_action :update_auth_header, only: [:destroy], if: :user_deleted_self?
 
   # GET /api/users
   def index
@@ -67,6 +68,7 @@ class Api::UsersController < Api::ApiController
       render json: { message: 'Você não tem permissão para apagar este usuário' }, status: :forbidden and return
     end
 
+    @user_deleted_self = (current_api_user == @user)
     @user.destroy
     head :no_content
   end
@@ -133,5 +135,9 @@ class Api::UsersController < Api::ApiController
     :profile_name, 
     :theme_preference
   )
+  end
+
+  def user_deleted_self?
+    @user_deleted_self == true
   end
 end
