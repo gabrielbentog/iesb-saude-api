@@ -3,23 +3,24 @@ class Api::AuthenticationController < Api::ApiController
 
   # POST /api/login
   def login
-    email = user_params[:email]
+    # email = user_params[:email]
+    cpf = user_params[:cpf]
     password = user_params[:password]
 
-    render json: { error: 'E-mail e senha são obrigatórios' }, status: :bad_request if email.blank? || password.blank?
+    render json: { error: 'CPF e senha são obrigatórios' }, status: :bad_request if cpf.blank? || password.blank?
 
-    user = User.find_by(email: email)
+    user = User.find_by(cpf: cpf)
 
     if user && user.valid_password?(password)
       auth_token = user.create_new_auth_token.try(:[], 'Authorization')
       response.set_header('Authorization', auth_token)
       render json: { token: auth_token, user: UserSerializer.new(user) }, status: :ok
     else
-      render json: { error: 'E-mail ou senha inválidos' }, status: :unauthorized
+      render json: { error: 'CPF ou senha inválidos' }, status: :unauthorized
     end
   end
 
   def user_params
-    params.permit(:email, :password)
+    params.permit(:cpf, :password)
   end
 end
