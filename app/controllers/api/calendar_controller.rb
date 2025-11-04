@@ -7,7 +7,8 @@ class Api::CalendarController < Api::ApiController
     user_specialty_id = current_api_user.specialty_id
 
     time_slots = TimeSlot.includes(:college_location, :specialty, :recurrence_rule)
-    
+    .where('time_slots.date between ? AND ?', from, to)
+
     # Aplicar filtros por parâmetros ou por usuário
     if specialty_id.present?
       time_slots = time_slots.where(specialty_id:)
@@ -24,7 +25,8 @@ class Api::CalendarController < Api::ApiController
     # 2. Consultas já marcadas
     appointments = Appointment.active
     .includes(:user, :time_slot => [:college_location, :specialty])
-    .joins(:time_slot).where(date: from..to)
+    .joins(:time_slot)
+    .where(date: from..to)
 
     # Aplicar filtros consistentes com time_slots
     if specialty_id.present?

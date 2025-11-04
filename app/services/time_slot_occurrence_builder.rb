@@ -15,7 +15,7 @@ class TimeSlotOccurrenceBuilder
     now = Time.zone.now
 
     occurrences =
-      if @slot.recurrence_rule.present?
+      if @slot.is_recurring?
         build_from_recurrence
       else
         build_single_day
