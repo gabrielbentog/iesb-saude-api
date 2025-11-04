@@ -50,14 +50,14 @@ interns = [
   )
 end.compact
 
-# Criar alguns pacientes com CPFs
+# Criar alguns pacientes com CPFs e telefones
 patients = [
-  { name: 'Maria Silva', email: 'maria@test.com', cpf: '12345678903' },
-  { name: 'João Santos', email: 'joao@test.com', cpf: '12345678904' },
-  { name: 'Ana Costa', email: 'ana@test.com', cpf: '12345678905' },
-  { name: 'Pedro Oliveira', email: 'pedro@test.com', cpf: '12345678906' },
-  { name: 'Julia Lima', email: 'julia@test.com', cpf: '12345678907' },
-  { name: 'Carlos Souza', email: 'carlos@test.com', cpf: '12345678908' }
+  { name: 'Maria Silva', email: 'maria@test.com', cpf: '12345678903', phone: '(61) 99999-1111' },
+  { name: 'João Santos', email: 'joao@test.com', cpf: '12345678904', phone: '(61) 99999-2222' },
+  { name: 'Ana Costa', email: 'ana@test.com', cpf: '12345678905', phone: '(61) 99999-3333' },
+  { name: 'Pedro Oliveira', email: 'pedro@test.com', cpf: '12345678906', phone: '(61) 99999-4444' },
+  { name: 'Julia Lima', email: 'julia@test.com', cpf: '12345678907', phone: '(61) 99999-5555' },
+  { name: 'Carlos Souza', email: 'carlos@test.com', cpf: '12345678908', phone: '(61) 99999-6666' }
 ].map do |attrs|
   User.create!(
     name: attrs[:name],
@@ -65,7 +65,8 @@ patients = [
     password: '12345678',
     password_confirmation: '12345678',
     profile: Profile.find_by(name: 'Paciente'),
-    cpf: attrs[:cpf]
+    cpf: attrs[:cpf],
+    phone: attrs[:phone]
   )
 end
 
