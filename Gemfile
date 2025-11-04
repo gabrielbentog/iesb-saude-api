@@ -46,7 +46,7 @@ group :development, :test do
   gem "mailcatcher", require: false
 
   #ENVs
-  gem "dotenv-rails", require: "dotenv/rails-now"
+  gem "dotenv-rails", require: "dotenv/load"
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false

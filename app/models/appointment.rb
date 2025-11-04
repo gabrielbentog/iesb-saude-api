@@ -33,6 +33,10 @@ class Appointment < ApplicationRecord
 
   validate :interns_count_within_limits
 
+  def active?
+    %i[pending admin_confirmed patient_confirmed completed].include?(status.to_sym)
+  end
+
   private
 
   def end_time_after_start_time

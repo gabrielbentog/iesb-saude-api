@@ -23,20 +23,19 @@ class TimeSlotOccurrenceBuilder
 
     # ======= filtrar apenas slots livres (sem agendamentos ativos) =======
     occurrences.select! do |occ|
-      # Manter apenas se NÃO existe agendamento ativo E não é no passado
-      appointment_query = Appointment.active.where(
-        time_slot_id: occ[:timeSlotId],
-        date: occ[:startAt].to_date
-      )
+      # Usar os appointments já carregados ao invés de fazer query
+      active_appointments = @slot.appointments.select do |appt|
+        appt.active? && appt.date == occ[:startAt].to_date
+      end
       
       # Aplicar os mesmos filtros que são usados no controller, se necessário
       if @user&.profile&.name == 'Paciente'
-        appointment_query = appointment_query.where(user_id: @user.id)
+        active_appointments = active_appointments.select { |appt| appt.user_id == @user.id }
       elsif @user&.profile&.name == 'Estagiário'
-        appointment_query = appointment_query.joins(:interns).where(users: { id: @user.id })
+        active_appointments = active_appointments.select { |appt| appt.interns.any? { |intern| intern.id == @user.id } }
       end
       
-      !appointment_query.exists? && occ[:startAt] >= Time.zone.now
+      !active_appointments.any? && occ[:startAt] >= Time.zone.now
     end
 
     occurrences
@@ -50,8 +49,8 @@ class TimeSlotOccurrenceBuilder
     sched = IceCube::Schedule.new(dummy_start_date)
     sched.add_recurrence_rule(build_rule)
 
-    # exceções inteiras (cancelar o dia todo)
-    @slot.exceptions.where(start_time: nil).find_each do |ex|
+    # exceções inteiras (cancelar o dia todo) - usar exceptions já carregadas
+    @slot.exceptions.select { |ex| ex.start_time.nil? }.each do |ex|
       sched.add_exception_time(Time.zone.local(ex.date.year, ex.date.month, ex.date.day))
     end
 
@@ -64,8 +63,9 @@ class TimeSlotOccurrenceBuilder
   def build_single_day
     return [] unless @slot.date && (@from..@to).cover?(@slot.date)
 
-    # ignora se houver exceção completa para esse dia
-    return [] if @slot.exceptions.exists?(date: @slot.date, start_time: nil)
+    # Usar exceptions já carregadas ao invés de fazer query
+    has_full_day_exception = @slot.exceptions.any? { |ex| ex.date == @slot.date && ex.start_time.nil? }
+    return [] if has_full_day_exception
 
     [build_hash_for(@slot.date)]
   end

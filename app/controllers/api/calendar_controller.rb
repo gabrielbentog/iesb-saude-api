@@ -6,7 +6,7 @@ class Api::CalendarController < Api::ApiController
     college_location_id = params[:campus_id]
     user_specialty_id = current_api_user.specialty_id
 
-    time_slots = TimeSlot.includes(:college_location, :specialty, :recurrence_rule)
+    time_slots = TimeSlot.includes(:college_location, :specialty, :recurrence_rule, :exceptions, :appointments)
     .where('time_slots.date between ? AND ?', from, to)
 
     # Aplicar filtros por parâmetros ou por usuário
@@ -18,7 +18,14 @@ class Api::CalendarController < Api::ApiController
     
     time_slots = time_slots.where(college_location_id:) if college_location_id.present?
 
-    free = time_slots.flat_map do |slot|
+    # Pré-carregar appointments e exceptions para evitar N+1
+    time_slots_with_data = time_slots.includes(
+      :appointments, 
+      :exceptions,
+      appointments: [:user, :interns]
+    )
+
+    free = time_slots_with_data.flat_map do |slot|
       TimeSlotOccurrenceBuilder.new(slot, from:, to:, user: current_api_user).call
     end
   
