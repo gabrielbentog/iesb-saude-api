@@ -13,8 +13,11 @@ class TimeSlot < ApplicationRecord
   accepts_nested_attributes_for :recurrence_rule, allow_destroy: true
 
   before_save :set_turn
+  before_save :set_is_recurring
+
   before_destroy :fix_appointments, prepend: true
   validate :can_destroy?, on: :destroy
+
   private
 
   def set_turn
@@ -23,6 +26,10 @@ class TimeSlot < ApplicationRecord
     when 12..17 then 'Tarde'
     else 'Noite'
     end
+  end
+
+  def set_is_recurring
+    self.is_recurring = recurrence_rule.present?
   end
 
   def can_destroy?

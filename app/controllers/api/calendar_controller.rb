@@ -23,7 +23,7 @@ class Api::CalendarController < Api::ApiController
   
     # 2. Consultas já marcadas
     appointments = Appointment.active
-    .includes(:user, :time_slot => [:college_location, :specialty, :recurrence_rule])
+    .includes(:user, :time_slot => [:college_location, :specialty])
     .joins(:time_slot).where(date: from..to)
 
     # Aplicar filtros consistentes com time_slots
@@ -48,7 +48,7 @@ class Api::CalendarController < Api::ApiController
         patientName:  appt.user.name,
         patientId:    appt.user.id,
         timeSlotId:    time_slot.id,
-        isRecurring:    time_slot.recurrence_rule.present?,   # ← NOVO
+        isRecurring:    time_slot.is_recurring,   # ← NOVO
         appointmentId:  appt.id,
         campusId:       time_slot.college_location_id,
         campusName:     time_slot.college_location&.name,

@@ -126,8 +126,8 @@ end_date = Date.new(2026, 1, 31)
           specialty: nutricao
         )
         
-        # Criar alguns agendamentos (40% dos horários)
-        if rand < 0.4
+        # Criar alguns agendamentos (5% dos horários - mais realista)
+        if rand < 0.05
           patient = patients.sample
           status = ['pending', 'admin_confirmed', 'completed', 'cancelled_by_admin'].sample
           start_time = DateTime.parse("#{date} #{horario}")
@@ -144,9 +144,9 @@ end_date = Date.new(2026, 1, 31)
             notes: status == 'completed' ? "Consulta realizada com sucesso" : nil
           )
           
-          # Adicionar estagiários aleatoriamente (50% dos agendamentos)
-          if rand < 0.5
-            selected_interns = interns.select { |intern| intern.specialty == nutricao }.sample(rand(1..2))
+          # Adicionar estagiários aleatoriamente (30% dos agendamentos)
+          if rand < 0.3
+            selected_interns = interns.select { |intern| intern.specialty == nutricao }.sample(rand(1..3))
             appointment.interns = selected_interns
           end
         end
@@ -164,8 +164,8 @@ end_date = Date.new(2026, 1, 31)
           specialty: psicologia
         )
         
-        # Menos agendamentos para psicologia (25%)
-        if rand < 0.25
+        # Menos agendamentos para psicologia (3% - ainda mais raro)
+        if rand < 0.03
           patient = patients.sample
           status = ['pending', 'completed'].sample
           start_time = DateTime.parse("#{date} #{horario}")
@@ -183,7 +183,7 @@ end_date = Date.new(2026, 1, 31)
           )
           
           # Adicionar estagiários de psicologia
-          if rand < 0.3
+          if rand < 0.2
             selected_interns = interns.select { |intern| intern.specialty == psicologia }.sample(1)
             appointment.interns = selected_interns
           end
@@ -207,8 +207,8 @@ end_date = Date.new(2026, 1, 31)
             specialty: odontologia
           )
           
-          # Agendamentos para odontologia (30%)
-          if rand < 0.3
+          # Agendamentos para odontologia (4% - realista)
+          if rand < 0.04
             patient = patients.sample
             status = ['pending', 'completed'].sample
             start_time = DateTime.parse("#{date} #{horario}")
@@ -226,7 +226,7 @@ end_date = Date.new(2026, 1, 31)
             )
             
             # Adicionar estagiários de odontologia
-            if rand < 0.4
+            if rand < 0.25
               selected_interns = interns.select { |intern| intern.specialty == odontologia }.sample(1)
               appointment.interns = selected_interns
             end
