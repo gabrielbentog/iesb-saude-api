@@ -58,7 +58,7 @@ class Api::AppointmentsController < Api::ApiController
   # GET /api/appointments/next
   def next
     specialty_id = current_api_user.specialty_id
-    @appointments = Appointment.joins(:time_slot).where.not(status: [:pending, :cancelled_by_admin, :rejected, :patient_cancelled])
+    @appointments = Appointment.joins(:time_slot).where(status: [:patient_confirmed, :admin_confirmed])
     @appointments = @appointments.where(time_slots: { specialty_id: specialty_id }) if specialty_id.present?
     @appointments = @appointments.where(
       '(appointments.date > ?) OR (appointments.date = ? AND appointments.start_time > ?)',
