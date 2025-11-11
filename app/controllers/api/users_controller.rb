@@ -85,6 +85,38 @@ class Api::UsersController < Api::ApiController
     render json: @interns, each_serializer: InternSerializer, meta: meta
   end
 
+  # GET /api/interns/kpis
+  def intern_kpis
+    # Estagiários Ativos
+    intern_profile = Profile.find_by(name: 'Estagiário')
+    specialty_id = current_api_user.specialty_id
+    active_interns_count = User.where(profile: intern_profile, specialty_id: specialty_id)
+                               .where('last_activity_at > ?', 1.month.ago)
+                               .count
+    interns_with_one_appointment = AppointmentIntern.joins(appointment: :time_slot)
+    .where(time_slots: { specialty_id: specialty_id })
+    .select('DISTINCT appointment_interns.intern_id').count
+
+    # Consultas realizadas
+    completed_appointments_count = Appointment.joins(:time_slot)
+                                              .where(status: :completed)
+                                              .where(time_slots: { specialty_id: specialty_id })
+                                              .count
+    # Média por estagiário
+    average_appointments_per_intern = if interns_with_one_appointment.zero?
+                                       0.0
+                                     else
+                                       (completed_appointments_count.to_f / interns_with_one_appointment).round(2)
+                                     end
+    data = {
+      activeInternsCount: active_interns_count,
+      completedAppointmentsCount: completed_appointments_count,
+      averageAppointmentsPerIntern: average_appointments_per_intern
+    }
+
+    render json: { data: data }, status: :ok
+  end
+
   # GET /api/users/code_verify
   def code_verify
     user = User.find_by(email: params.require(:email))

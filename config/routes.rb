@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       collection do
         get :interns
         get :me
+        get 'interns/kpis'  => 'users#intern_kpis'
       end
 
       member do
