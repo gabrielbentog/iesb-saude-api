@@ -7,7 +7,12 @@ class Api::DashboardController < Api::ApiController
     specialty_id = current_api_user.specialty_id
 
     # 1. Appointments today + variation vs. same weekday last week
-    appointments_today       = Appointment.joins(:time_slot).where(date: today, time_slots: { specialty_id: specialty_id }).count
+    appointments_today = Appointment.joins(:time_slot)
+                    .where(time_slots: { specialty_id: specialty_id })
+                    .where.not(status: [:completed, :rejected, :patient_cancelled, :cancelled_by_admin])
+                    .where('appointments.date = ? AND time_slots.start_time >= ?', today, Time.zone.now)
+                    .count
+
     appointments_last_week   = Appointment.joins(:time_slot).where(date: last_week_day, time_slots: { specialty_id: specialty_id }).count
     percent_change = if appointments_last_week.zero?
       0.0
