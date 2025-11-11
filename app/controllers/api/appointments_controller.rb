@@ -8,8 +8,16 @@ class Api::AppointmentsController < Api::ApiController
     @appointments = @appointments.where(user_id: current_api_user.id) if current_api_user.profile.name == 'Paciente'
     @appointments = @appointments.joins(:interns).where(users: { id: current_api_user.id }) if current_api_user.profile.name == 'Estagiário'
     @appointments = @appointments.joins(:time_slot).where(time_slots: { specialty_id: specialty_id }) if specialty_id.present?
+    @appointments = @appointments.order(Arel.sql(<<~SQL))
+      CASE 
+        WHEN appointments.date >= CURRENT_DATE THEN 0  -- futuras primeiro
+        ELSE 1                                        -- passadas depois
+      END,
+      appointments.date ASC,
+      appointments.start_time ASC
+    SQL
     @appointments = @appointments.apply_filters(params)
-    @appointments = @appointments.order(created_at: :desc, start_time: :asc)
+
     meta = generate_meta(@appointments)
     meta = meta.merge(meta_for_profile(current_api_user.profile.name))
 
@@ -65,6 +73,7 @@ class Api::AppointmentsController < Api::ApiController
       Date.current, Date.current, Time.current
     )
     @appointments = @appointments.where(user_id: current_api_user.id) if ['Paciente', 'Estagiário'].include?(current_api_user.profile.name)
+    @appointments = @appointments.order(:date, :start_time)
     @appointments = @appointments.apply_filters(params)
 
     meta = {

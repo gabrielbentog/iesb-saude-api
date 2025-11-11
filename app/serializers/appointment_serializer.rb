@@ -51,4 +51,14 @@ class AppointmentSerializer < BaseSerializer
       }
     end
   end
+
+  attribute :status do |serializer|
+    object = serializer.object
+
+    if !object.completed? && object.date < Date.current
+      'expired'
+    else
+      object.status
+    end
+  end
 end
