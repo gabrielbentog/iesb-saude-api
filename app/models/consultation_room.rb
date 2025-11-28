@@ -1,4 +1,6 @@
 class ConsultationRoom < ApplicationRecord
+  acts_as_paranoid
+  
   belongs_to :college_location
   belongs_to :specialty
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_11_000008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -49,7 +49,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.uuid "intern_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
     t.index ["appointment_id", "intern_id"], name: "index_appointment_interns_on_appointment_id_and_intern_id", unique: true
+    t.index ["deleted_at"], name: "index_appointment_interns_on_deleted_at"
     t.index ["intern_id"], name: "index_appointment_interns_on_intern_id"
   end
 
@@ -77,7 +79,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "consultation_room_id"
+    t.datetime "deleted_at"
     t.index ["consultation_room_id"], name: "index_appointments_on_consultation_room_id"
+    t.index ["deleted_at"], name: "index_appointments_on_deleted_at"
     t.index ["time_slot_id"], name: "index_appointments_on_time_slot_id"
     t.index ["user_id"], name: "index_appointments_on_user_id"
   end
@@ -87,6 +91,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.string "location"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_college_locations_on_deleted_at"
   end
 
   create_table "consultation_rooms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -96,7 +102,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.boolean "active"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
     t.index ["college_location_id"], name: "index_consultation_rooms_on_college_location_id"
+    t.index ["deleted_at"], name: "index_consultation_rooms_on_deleted_at"
     t.index ["specialty_id"], name: "index_consultation_rooms_on_specialty_id"
   end
 
@@ -120,7 +128,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.string "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
     t.index ["appointment_id"], name: "index_notifications_on_appointment_id"
+    t.index ["deleted_at"], name: "index_notifications_on_deleted_at"
     t.index ["read"], name: "index_notifications_on_read"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
@@ -164,6 +174,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "users_count"
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_specialties_on_deleted_at"
   end
 
   create_table "time_slot_exceptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -189,7 +201,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.datetime "updated_at", null: false
     t.date "date"
     t.boolean "is_recurring", default: false, null: false
+    t.datetime "deleted_at"
     t.index ["college_location_id"], name: "index_time_slots_on_college_location_id"
+    t.index ["deleted_at"], name: "index_time_slots_on_deleted_at"
     t.index ["intern_id"], name: "index_time_slots_on_intern_id"
     t.index ["specialty_id"], name: "index_time_slots_on_specialty_id"
   end
@@ -225,8 +239,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_125544) do
     t.integer "theme_preference", default: 0, null: false
     t.uuid "college_location_id"
     t.integer "semester"
+    t.datetime "deleted_at"
     t.index ["college_location_id"], name: "index_users_on_college_location_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
+    t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["last_activity_at"], name: "index_users_on_last_activity_at"
     t.index ["profile_id"], name: "index_users_on_profile_id"

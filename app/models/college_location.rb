@@ -1,4 +1,6 @@
 class CollegeLocation < ApplicationRecord
+  acts_as_paranoid
+  
   has_many :location_specialties, dependent: :destroy
   has_many :specialties, through: :location_specialties
   has_many :consultation_rooms, dependent: :destroy

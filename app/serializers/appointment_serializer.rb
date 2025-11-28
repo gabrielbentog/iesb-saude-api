@@ -41,13 +41,15 @@ class AppointmentSerializer < BaseSerializer
   end
 
   attribute :interns do |serializer|
-    interns = serializer.object.interns
+    # Incluir estagiários deletados para manter histórico
+    interns = serializer.object.interns.with_deleted
 
     interns.map do |intern|
       {
         id: intern.id,
         name: intern.name,
         avatar_url: intern.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_path(intern.avatar, only_path: true) : nil,
+        deleted: intern.deleted?
       }
     end
   end

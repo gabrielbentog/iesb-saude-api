@@ -30,7 +30,7 @@ class Api::AppointmentsController < Api::ApiController
       render json: { error: 'Not authorized' }, status: :forbidden and return
     end
 
-    if current_api_user.profile.name == 'Estagiário' && !@appointment.interns.exists?(id: current_api_user.id)
+    if current_api_user.profile.name == 'Estagiário' && !@appointment.interns.with_deleted.exists?(id: current_api_user.id)
       render json: { error: 'Not authorized' }, status: :forbidden and return
     end
 

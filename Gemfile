@@ -68,3 +68,6 @@ gem "dockerfile-rails", ">= 1.7", :group => :development
 
 # Upload
 gem "image_processing", "~> 1.12"
+
+# Soft delete
+gem "paranoia", "~> 3.0"

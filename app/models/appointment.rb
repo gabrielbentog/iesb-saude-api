@@ -1,5 +1,7 @@
 class Appointment < ApplicationRecord
   include Filterable
+  acts_as_paranoid
+  
   belongs_to :time_slot
   belongs_to :user
   belongs_to :consultation_room, optional: true

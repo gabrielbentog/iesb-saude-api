@@ -1,4 +1,6 @@
 class Notification < ApplicationRecord
+  acts_as_paranoid
+  
   belongs_to :user
   belongs_to :appointment, optional: true
 

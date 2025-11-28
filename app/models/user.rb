@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   extend Devise::Models
   include Filterable
+  acts_as_paranoid
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
