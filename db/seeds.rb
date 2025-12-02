@@ -1,279 +1,217 @@
-Profile.find_or_create_by(name: 'Paciente')
-Profile.find_or_create_by(name: 'Gestor')
-Profile.find_or_create_by(name: 'Estagiário')
+# seeds.rb
 
-Appointment.destroy_all
-TimeSlot.destroy_all
+# --- Helpers ---
+def generate_cpf
+  digits = 9.times.map { rand(0..9) }
+  v1 = digits.each_with_index.map { |d, i| d * (10 - i) }.sum % 11
+  digits << (v1 < 2 ? 0 : 11 - v1)
+  v2 = digits.each_with_index.map { |d, i| d * (11 - i) }.sum % 11
+  digits << (v2 < 2 ? 0 : 11 - v2)
+  digits.join
+end
+
+# --- Limpeza ---
+puts "🗑️  Limpando banco de dados..."
+# Usando really_destroy! se tiver paranoia, senao destroy_all
+Appointment.respond_to?(:really_destroy!) ? Appointment.with_deleted.each(&:really_destroy!) : Appointment.destroy_all
+TimeSlot.respond_to?(:really_destroy!) ? TimeSlot.with_deleted.each(&:really_destroy!) : TimeSlot.destroy_all
 ConsultationRoom.destroy_all
 LocationSpecialty.destroy_all
+User.with_deleted.each(&:really_destroy!) if User.respond_to?(:really_destroy!)
+User.destroy_all unless User.count == 0
 CollegeLocation.destroy_all
 Specialty.destroy_all
-User.destroy_all
+Profile.destroy_all
 
-puts "🎓 Criando especialidades..."
+puts "🛠️  Criando Perfis..."
+p_paciente   = Profile.find_or_create_by!(name: 'Paciente')
+p_gestor     = Profile.find_or_create_by!(name: 'Gestor')
+p_estagiario = Profile.find_or_create_by!(name: 'Estagiário')
+
+puts "🎓 Criando Especialidades..."
 specialties = [
-  { name: 'Nutrição',            description: 'Curso de Nutrição na IESB',       active: true },
-  { name: 'Odontologia',    description: 'Curso de Odontologia na IESB', active: true },
-  { name: 'Psicologia',                  description: 'Curso de Psicologia na IESB',               active: true },
+  { name: 'Nutrição',    description: 'Atendimento nutricional', active: true },
+  { name: 'Odontologia', description: 'Tratamentos dentários',   active: true },
+  { name: 'Psicologia',  description: 'Acompanhamento psicológico', active: true }
 ].map { |attrs| Specialty.create!(attrs) }
 
-puts "👤 Criando usuários..."
-User.create!(name: 'Gestor', email: 'gestor@test.com', password: '12345678', password_confirmation: '12345678', profile: Profile.find_by(name: 'Gestor'), specialty: specialties.first, cpf: '12345678901')
+spec_nutri = specialties.find { |s| s.name == 'Nutrição' }
+spec_odon  = specialties.find { |s| s.name == 'Odontologia' }
+spec_psi   = specialties.find { |s| s.name == 'Psicologia' }
 
-# Criar estagiários - 3 para cada especialidade
-interns = [
-  # Nutrição
-  { name: 'Ana Estagiária', email: 'ana.intern@test.com', cpf: '18660795067', specialty: specialties.first },
-  { name: 'Carlos Estagiário', email: 'carlos.intern@test.com', cpf: '11122233344', specialty: specialties.first },
-  { name: 'Fernanda Estagiária', email: 'fernanda.intern@test.com', cpf: '55566677788', specialty: specialties.first },
-  
-  # Odontologia
-  { name: 'Pedro Estagiário', email: 'pedro.intern@test.com', cpf: '09348680005', specialty: specialties.second },
-  { name: 'Mariana Estagiária', email: 'mariana.intern@test.com', cpf: '99988877766', specialty: specialties.second },
-  { name: 'Rafael Estagiário', email: 'rafael.intern@test.com', cpf: '33344455566', specialty: specialties.second },
-  
-  # Psicologia
-  { name: 'Julia Estagiária', email: 'julia.intern@test.com', cpf: '42155270070', specialty: specialties.last },
-  { name: 'Lucas Estagiário', email: 'lucas.intern@test.com', cpf: '77788899900', specialty: specialties.last },
-  { name: 'Beatriz Estagiária', email: 'beatriz.intern@test.com', cpf: '12321456789', specialty: specialties.last }
-].map do |attrs|
-  user = User.find_by(email: attrs[:email])
-  next if user.present?
-  User.create!(
-    name: attrs[:name],
-    email: attrs[:email],
-    password: '12345678',
-    password_confirmation: '12345678',
-    profile: Profile.find_by(name: 'Estagiário'),
-    specialty: attrs[:specialty],
-    cpf: attrs[:cpf]
-  )
-end.compact
+puts "🏫 Criando Polos..."
+campus_asa_sul = CollegeLocation.create!(name: 'Campus Asa Sul', location: 'L2 Sul')
+campus_ceilandia = CollegeLocation.create!(name: 'Campus Ceilândia', location: 'Ceilândia')
 
-# Criar alguns pacientes com CPFs e telefones
-patients = [
-  { name: 'Maria Silva', email: 'maria@test.com', cpf: '12345678903', phone: '(61) 99999-1111' },
-  { name: 'João Santos', email: 'joao@test.com', cpf: '12345678904', phone: '(61) 99999-2222' },
-  { name: 'Ana Costa', email: 'ana@test.com', cpf: '12345678905', phone: '(61) 99999-3333' },
-  { name: 'Pedro Oliveira', email: 'pedro@test.com', cpf: '12345678906', phone: '(61) 99999-4444' },
-  { name: 'Julia Lima', email: 'julia@test.com', cpf: '12345678907', phone: '(61) 99999-5555' },
-  { name: 'Carlos Souza', email: 'carlos@test.com', cpf: '12345678908', phone: '(61) 99999-6666' }
-].map do |attrs|
-  User.create!(
-    name: attrs[:name],
-    email: attrs[:email],
-    password: '12345678',
-    password_confirmation: '12345678',
-    profile: Profile.find_by(name: 'Paciente'),
-    cpf: attrs[:cpf],
-    phone: attrs[:phone]
-  )
-end
+puts "🔗 Configurando Salas..."
+config_salas = [
+  [ campus_asa_sul, spec_nutri, 3 ],
+  [ campus_asa_sul, spec_odon,  4 ],
+  [ campus_asa_sul, spec_psi,   3 ],
+  [ campus_ceilandia, spec_nutri, 2 ],
+  [ campus_ceilandia, spec_psi,   2 ]
+]
 
-puts "🏫 Criando polos (college_locations)..."
-campuses = [
-  { name: 'Campus Asa Sul',   location: 'L2 Sul, Brasília - DF' },
-  { name: 'Campus Ceilândia',      location: 'QS 317, Ceilândia - Brasília - DF' },
-].map { |attrs| CollegeLocation.create!(attrs) }
-
-puts "🔗 Associando especialidades a cada campus e criando salas de consulta..."
-campus_specialties_map = {
-  'Campus Asa Sul'  => ['Nutrição', 'Odontologia', 'Psicologia'],
-  'Campus Ceilândia'     => ['Nutrição', 'Psicologia'],
-}
-
-campus_specialties_map.each do |campus_name, spec_names|
-  campus = CollegeLocation.find_by!(name: campus_name)
-  spec_names.each do |spec_name|
-    spec = Specialty.find_by!(name: spec_name)
-
-    # Join table
-    LocationSpecialty.create!(
+config_salas.each do |campus, specialty, qtd|
+  LocationSpecialty.find_or_create_by!(college_location: campus, specialty: specialty)
+  qtd.times do |i|
+    ConsultationRoom.create!(
       college_location: campus,
-      specialty:        spec
+      specialty: specialty,
+      name: "#{specialty.name} - Sala #{i + 1} (#{campus.name.split.last})",
+      active: true
     )
-
-    # Criar salas de consulta para cada especialidade (reduzido para teste)
-    room_count = case spec_name
-                 when 'Nutrição' then 2      # Era 8, agora 2
-                 else 1                      # Era 4, agora 1
-                 end
-    room_count.times.each do |room_label|
-      ConsultationRoom.create!(
-        college_location: campus,
-        specialty:        spec,
-        name:             "#{spec.name} – #{room_label + 1}",
-        active:           true
-      )
-    end
   end
 end
 
-puts "⏰ Criando horários até janeiro de 2026..."
+puts "👥 Criando USUÁRIOS PRINCIPAIS..."
 
-# Encontrar especialidades e salas
-nutricao = Specialty.find_by!(name: 'Nutrição')
-psicologia = Specialty.find_by!(name: 'Psicologia')
-odontologia = Specialty.find_by!(name: 'Odontologia')
+# Gestor Principal (Necessário para o Current.user)
+gestor_demo = User.create!(
+  name: 'Gestor Demo', email: 'gestor@tcc.com',
+  password: '12345678', password_confirmation: '12345678',
+  profile: p_gestor, specialty: spec_nutri, cpf: generate_cpf
+)
 
-# Horários de funcionamento: apenas alguns horários por dia (ambiente de teste)
-horarios = ['08:00', '10:00', '14:00', '16:00']  # Apenas 4 horários por dia
+# Estagiário Demo
+User.create!(
+  name: 'Estagiário Demo', email: 'estagiario@tcc.com',
+  password: '12345678', password_confirmation: '12345678',
+  profile: p_estagiario, specialty: spec_nutri, cpf: generate_cpf
+)
 
-# Criar horários apenas para algumas semanas (não o ano todo)
-start_date = Date.current
-end_date = Date.current + 2.months  # Apenas 2 meses para teste
+# Paciente Demo
+User.create!(
+  name: 'Paciente Demo', email: 'paciente@tcc.com',
+  password: '12345678', password_confirmation: '12345678',
+  profile: p_paciente, cpf: generate_cpf, phone: '(61) 99999-9999'
+)
+
+# Simulando usuário logado para os callbacks do modelo funcionarem
+# Se sua app usa Current.user, isso evita erro de nil
+if defined?(Current)
+  Current.user = gestor_demo
+end
+
+puts "👥 Criando usuários extras..."
+# Estagiários
+interns = []
+15.times do
+  interns << User.create!(
+    name: "Estagiário #{Faker::Name.first_name rescue 'Extra'}",
+    email: "estagiario_#{SecureRandom.hex(4)}@test.com",
+    password: '12345678', password_confirmation: '12345678',
+    profile: p_estagiario,
+    specialty: specialties.sample,
+    cpf: generate_cpf
+  )
+end
+
+# Pacientes
+patients = []
+20.times do |i|
+  patients << User.create!(
+    name: "Paciente #{i+1}",
+    email: "paciente_#{i+1}@test.com",
+    password: '12345678', password_confirmation: '12345678',
+    profile: p_paciente,
+    cpf: generate_cpf,
+    phone: "(61) 98888-#{1000 + i}"
+  )
+end
+
+puts "⏰ Gerando AGENDA E CONSULTAS..."
+
+all_rooms = ConsultationRoom.all
+start_date = 14.days.ago.to_date
+end_date   = 30.days.from_now.to_date
+horarios_base = [ '08:00', '09:00', '10:00', '14:00', '15:00', '16:00' ]
 
 (start_date..end_date).each do |date|
-  # Pular finais de semana
   next if date.saturday? || date.sunday?
-  
-  # Criar mais horários para nutrição
-  if [1, 2, 3, 4, 5].include?(date.wday) # Segunda a sexta
-    
-    # Nutrição - criar TODOS os horários primeiro
-    nutricao_rooms = ConsultationRoom.where(specialty: nutricao)
-    nutricao_time_slots = []
-    
-    nutricao_rooms.each do |room|
-      horarios.each do |horario|
-        time_slot = TimeSlot.create!(
-          start_time: DateTime.parse("#{date} #{horario}"),
-          end_time: DateTime.parse("#{date} #{horario}") + 1.hour,
-          date: date,
-          college_location: room.college_location,
-          specialty: nutricao
-        )
-        nutricao_time_slots << { time_slot: time_slot, room: room, horario: horario }
-      end
-    end
-    
-    # Agora criar alguns agendamentos (20% dos horários criados - mais visível)
-    appointments_to_create = [(nutricao_time_slots.size * 0.2).to_i, 1].max  # Pelo menos 1
-    nutricao_time_slots.shuffle.first(appointments_to_create).each do |slot_data|
-      patient = patients.sample
-      status = ['pending', 'admin_confirmed', 'completed', 'cancelled_by_admin'].sample
-      start_time = DateTime.parse("#{date} #{slot_data[:horario]}")
-      end_time = start_time + 1.hour
-      
-      appointment = Appointment.create!(
-        user: patient,
-        time_slot: slot_data[:time_slot],
-        consultation_room: slot_data[:room],
-        status: status,
-        date: date,
+
+  is_past   = date < Date.current
+  is_today  = date == Date.current
+  is_future = date > Date.current
+
+  all_rooms.each do |room|
+    # Menos horários no futuro distante
+    next if is_future && date > 5.days.from_now && rand > 0.4
+
+    horarios_do_dia = horarios_base.dup
+    # Se for hoje, simula que alguns já passaram
+    horarios_do_dia = horarios_base.last(3) if is_today && Time.now.hour > 13
+
+    horarios_do_dia.each do |horario|
+      start_time = DateTime.parse("#{date} #{horario}")
+
+      # Cria o TimeSlot (disponibilidade)
+      ts = TimeSlot.create!(
         start_time: start_time,
-        end_time: end_time,
-        notes: status == 'completed' ? "Consulta realizada com sucesso" : nil
-      )
-      
-      # Adicionar estagiários (90% dos agendamentos têm de 1 a 3 estagiários)
-      if rand < 0.9
-        selected_interns = interns.select { |intern| intern.specialty == nutricao }.sample(rand(1..3))
-        appointment.interns = selected_interns if selected_interns.any?
-      end
-    end
-    
-    # Psicologia - criar horários primeiro (reduzido)
-    psicologia_rooms = ConsultationRoom.where(specialty: psicologia)
-    psicologia_time_slots = []
-    
-    psicologia_rooms.each do |room|
-      horarios.sample(2).each do |horario| # Apenas 2 horários por dia (era 4)
-        time_slot = TimeSlot.create!(
-          start_time: DateTime.parse("#{date} #{horario}"),
-          end_time: DateTime.parse("#{date} #{horario}") + 1.hour,
-          date: date,
-          college_location: room.college_location,
-          specialty: psicologia
-        )
-        psicologia_time_slots << { time_slot: time_slot, room: room, horario: horario }
-      end
-    end
-    
-    # Criar alguns agendamentos (15% dos horários criados - mais visível)
-    appointments_to_create = [(psicologia_time_slots.size * 0.15).to_i, 1].max  # Pelo menos 1
-    psicologia_time_slots.shuffle.first(appointments_to_create).each do |slot_data|
-      patient = patients.sample
-      status = ['pending', 'completed'].sample
-      start_time = DateTime.parse("#{date} #{slot_data[:horario]}")
-      end_time = start_time + 1.hour
-      
-      appointment = Appointment.create!(
-        user: patient,
-        time_slot: slot_data[:time_slot],
-        consultation_room: slot_data[:room],
-        status: status,
+        end_time: start_time + 1.hour,
         date: date,
-        start_time: start_time,
-        end_time: end_time,
-        notes: status == 'completed' ? "Sessão de terapia realizada" : nil
+        college_location: room.college_location,
+        specialty: room.specialty
       )
-      
-      # Adicionar estagiários (90% dos agendamentos têm de 1 a 3 estagiários)
-      if rand < 0.9
-        selected_interns = interns.select { |intern| intern.specialty == psicologia }.sample(rand(1..3))
-        appointment.interns = selected_interns if selected_interns.any?
-      end
-    end
-    
-    # Odontologia - apenas no Campus Asa Sul
-    if CollegeLocation.find_by(name: 'Campus Asa Sul')
-      odonto_rooms = ConsultationRoom.where(
-        specialty: odontologia,
-        college_location: CollegeLocation.find_by(name: 'Campus Asa Sul')
-      )
-      odonto_time_slots = []
-      
-      odonto_rooms.each do |room|
-        horarios.sample(2).each do |horario| # Apenas 2 horários por dia (era 3)
-          time_slot = TimeSlot.create!(
-            start_time: DateTime.parse("#{date} #{horario}"),
-            end_time: DateTime.parse("#{date} #{horario}") + 1.hour,
-            date: date,
-            college_location: room.college_location,
-            specialty: odontologia
-          )
-          odonto_time_slots << { time_slot: time_slot, room: room, horario: horario }
+
+      # LÓGICA DE STATUS REALISTA
+      should_book = false
+      status_to_assign = nil
+
+      if is_past
+        should_book = rand > 0.3 # 70% de ocupação no passado
+        # No passado, a maioria foi concluída, mas houve cancelamentos
+        status_to_assign = [ :completed, :completed, :completed, :patient_cancelled, :cancelled_by_admin, :rejected ].sample
+
+      elsif is_today
+        should_book = rand > 0.4
+        if start_time < Time.now
+          status_to_assign = :completed # Já aconteceu hoje
+        else
+          # Próximas horas: Tudo pronto (confirmado) ou pendente de última hora
+          status_to_assign = [ :patient_confirmed, :patient_confirmed, :admin_confirmed ].sample
         end
+
+      elsif is_future
+        # No futuro, deixamos MAIS LIVRE para você agendar na demo
+        should_book = rand > 0.75 # Apenas 25% ocupado
+        # Futuro: Pendente, Confirmado pelo Admin (esperando paciente) ou Confirmado Final
+        status_to_assign = [ :pending, :admin_confirmed, :patient_confirmed ].sample
       end
-      
-      # Criar alguns agendamentos (18% dos horários criados - mais visível)
-      appointments_to_create = [(odonto_time_slots.size * 0.18).to_i, 1].max  # Pelo menos 1
-      odonto_time_slots.shuffle.first(appointments_to_create).each do |slot_data|
+
+      if should_book
         patient = patients.sample
-        status = ['pending', 'completed'].sample
-        start_time = DateTime.parse("#{date} #{slot_data[:horario]}")
-        end_time = start_time + 1.hour
-        
-        appointment = Appointment.create!(
+
+        app = Appointment.new(
           user: patient,
-          time_slot: slot_data[:time_slot],
-          consultation_room: slot_data[:room],
-          status: status,
+          time_slot: ts,
+          consultation_room: room,
           date: date,
           start_time: start_time,
-          end_time: end_time,
-          notes: status == 'completed' ? "Procedimento odontológico realizado" : nil
+          end_time: start_time + 1.hour,
+          status: status_to_assign,
+          notes: status_to_assign == :completed ? "Atendimento realizado conforme protocolo." : nil
         )
-        
-        # Adicionar estagiários (90% dos agendamentos têm de 1 a 3 estagiários)
-        if rand < 0.9
-          selected_interns = interns.select { |intern| intern.specialty == odontologia }.sample(rand(1..3))
-          appointment.interns = selected_interns if selected_interns.any?
+
+        # Salva o agendamento (Callbacks de notificação rodarão aqui)
+        # O log_status_change usará o Current.user definido acima
+        if app.save
+          # Associa estagiários da especialidade correta
+          if [ :patient_confirmed, :completed ].include?(status_to_assign)
+            room_interns = interns.select { |u| u.specialty_id == room.specialty_id }
+            app.interns << room_interns.sample(rand(1..2)) if room_interns.any?
+          end
+        else
+          puts "⚠️ Erro ao criar consulta: #{app.errors.full_messages}"
         end
       end
     end
   end
 end
 
-puts "📊 Estatísticas criadas:"
-puts "- Usuários: #{User.count}"
-puts "- Especialidades: #{Specialty.count}"
-puts "- Campi: #{CollegeLocation.count}"
-puts "- Salas de consulta: #{ConsultationRoom.count}"
-puts "- Horários criados: #{TimeSlot.count}"
-puts "- Agendamentos: #{Appointment.count}"
-puts "- Agendamentos concluídos: #{Appointment.where(status: 'completed').count}"
-puts "- Horários livres: #{TimeSlot.left_joins(:appointments).where(appointments: { id: nil }).count}"
-
-puts "✅ Seed finalizado!"
+puts "✅ SEED FINALIZADO!"
+puts "Estatísticas:"
+puts "Pendentes: #{Appointment.where(status: :pending).count}"
+puts "Aguardando Paciente (Admin Confirmed): #{Appointment.where(status: :admin_confirmed).count}"
+puts "Confirmadas (Patient Confirmed): #{Appointment.where(status: :patient_confirmed).count}"
+puts "Concluídas: #{Appointment.where(status: :completed).count}"
