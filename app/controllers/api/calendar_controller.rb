@@ -6,8 +6,12 @@ class Api::CalendarController < Api::ApiController
     college_location_id = params[:campus_id]
     user_specialty_id = current_api_user.specialty_id
 
-    time_slots = TimeSlot.includes(:college_location, :specialty, :recurrence_rule, :exceptions, :appointments)
-    .where('time_slots.date between ? AND ?', from, to)
+    time_slots = TimeSlot.left_joins(:recurrence_rule)
+      .includes(:college_location, :specialty, :recurrence_rule, :exceptions, :appointments)
+      .where(
+        '(time_slots.date between ? AND ?) OR (recurrence_rules.start_date <= ? AND recurrence_rules.end_date >= ?)',
+        from, to, to, from
+      )
 
     # Aplicar filtros por parâmetros ou por usuário
     if specialty_id.present?
